@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vitara — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080F; --surface:#0D1117; --surface2:#131820; --surface3:#181F2A;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.04);
+  --gold:#C9A84C; --gold-dim:rgba(201,168,76,0.15);
+  --green:#4CAF7D; --green-dim:rgba(76,175,125,0.12);
+  --blue:#5BA3C9; --red:#C96B5A; --purple:#9B7DB5;
+  --text:#F0EDE6; --muted:#6B7280; --soft:#9CA3AF;
+  --sidebar:220px;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);font-family:'Outfit',sans-serif;
+  color:var(--text);min-height:100vh;display:flex;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:100;
+  transition:transform .3s;
+}
+.sidebar-logo{
+  padding:28px 24px 20px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;letter-spacing:3px;color:var(--text);
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0.4)}50%{box-shadow:0 0 0 5px rgba(201,168,76,0)}}
+
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-section{margin-bottom:24px}
+.nav-section-label{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);font-weight:700;padding:0 12px;margin-bottom:6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;border-radius:10px;cursor:pointer;
+  transition:all .15s;color:var(--muted);font-size:14px;font-weight:400;
+  text-decoration:none;
+}
+.nav-item:hover{background:var(--surface2);color:var(--soft)}
+.nav-item.active{background:var(--gold-dim);color:var(--gold)}
+.nav-item.active .nav-icon{color:var(--gold)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--green);color:#06080F;
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:50px;
+}
+
+.sidebar-user{
+  padding:16px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-plan{font-size:11px;color:var(--gold)}
+.user-settings{margin-left:auto;cursor:pointer;color:var(--muted);font-size:14px;padding:4px}
+
+/* ── MAIN ── */
+.main{
+  margin-left:var(--sidebar);flex:1;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+.topbar{
+  background:rgba(6,8,15,0.9);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:16px 32px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-date{font-size:13px;color:var(--muted)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.streak-badge{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);
+  border-radius:50px;padding:6px 14px;font-size:13px;color:var(--gold);font-weight:600;
+}
+.notif-btn{
+  width:36px;height:36px;border-radius:50%;background:var(--surface2);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;position:relative;
+}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--green);border:1.5px solid var(--bg);
+}
+
+/* ── CONTENT ── */
+.content{padding:32px;flex:1}
+.page{display:none}
+.page.active{display:block}
+
+/* ── OVERVIEW PAGE ── */
+.greeting{margin-bottom:28px}
+.greeting-sub{font-size:13px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px}
+.greeting-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:36px;font-weight:600;line-height:1.1;
+}
+.greeting-title em{font-style:italic;color:var(--gold)}
+
+/* Score hero */
+.score-hero{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px;padding:28px;margin-bottom:20px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:center;
+  position:relative;overflow:hidden;
+}
+.score-hero::before{
+  content:'';position:absolute;right:-60px;top:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,76,0.07),transparent 70%);
+  pointer-events:none;
+}
+.score-ring{
+  width:96px;height:96px;position:relative;flex-shrink:0;
+}
+.score-ring svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--surface2);stroke-width:8}
+.ring-fill{
+  fill:none;stroke:var(--gold);stroke-width:8;
+  stroke-linecap:round;stroke-dasharray:251;
+  stroke-dashoffset:var(--offset,75);
+  transition:stroke-dashoffset 1.2s cubic-bezier(.16,1,.3,1);
+}
+.score-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.score-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:600;color:var(--text);line-height:1;
+}
+.score-max{font-size:10px;color:var(--muted)}
+.score-info h3{font-size:18px;font-weight:600;color:var(--text);margin-bottom:6px}
+.score-info p{font-size:14px;color:var(--muted);line-height:1.6;max-width:340px}
+.score-change{
+  text-align:right;flex-shrink:0;
+}
+.change-val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:600;color:var(--green);
+}
+.change-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Pillar bars */
+.pillars-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px;
+}
+.pillar-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:14px 12px;text-align:center;
+  transition:all .2s;cursor:pointer;
+}
+.pillar-card:hover{border-color:rgba(201,168,76,0.3);transform:translateY(-2px)}
+.pillar-icon{font-size:22px;margin-bottom:8px}
+.pillar-bar-track{height:60px;background:var(--surface2);border-radius:4px;overflow:hidden;display:flex;flex-direction:column-reverse;margin-bottom:8px}
+.pillar-bar-fill{border-radius:4px;transition:height 1s cubic-bezier(.16,1,.3,1)}
+.pillar-score{font-size:16px;font-weight:700;font-family:'Cormorant Garamond',serif}
+.pillar-name{font-size:10px;color:var(--muted);letter-spacing:.5px}
+
+/* 2-col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px}
+
+/* Cards */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:24px;
+}
+.card-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;
+}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-action{font-size:12px;color:var(--gold);cursor:pointer;transition:opacity .2s}
+.card-action:hover{opacity:.7}
+
+/* Plan items */
+.plan-item{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:12px 0;border-bottom:1px solid var(--border2);
+}
+.plan-item:last-child{border-bottom:none}
+.plan-dot{
+  width:36px;height:36px;border-radius:10px;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;margin-top:1px;
+}
+.plan-time{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.plan-action{font-size:13px;color:var(--soft);line-height:1.5}
+.plan-dur{font-size:11px;color:var(--muted);margin-top:2px}
+.plan-check{
+  margin-left:auto;width:22px;height:22px;border-radius:50%;
+  border:1.5px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;transition:all .15s;flex-shrink:0;margin-top:7px;
+}
+.plan-check.done{background:var(--green);border-color:var(--green);color:#06080F}
+
+/* Habit tracker mini */
+.habit-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--border2);
+}
+.habit-row:last-child{border-bottom:none}
+.habit-name{font-size:13px;color:var(--soft);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.habit-days{display:flex;gap:4px}
+.habit-day{
+  width:24px;height:24px;border-radius:6px;
+  background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--muted);cursor:pointer;transition:all .15s;
+}
+.habit-day.done{background:var(--green-dim);border-color:rgba(76,175,125,0.3);color:var(--green)}
+.habit-day.today{border-color:var(--gold)}
+
+/* Weekly chart */
+.chart-wrap{height:120px;display:flex;align-items:flex-end;gap:8px;padding:4px 0}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.chart-bar{
+  width:100%;border-radius:6px 6px 0 0;background:var(--surface2);
+  position:relative;overflow:hidden;min-height:4px;
+  transition:height .8s cubic-bezier(.16,1,.3,1);
+}
+.chart-bar-fill{
+  position:absolute;bottom:0;left:0;right:0;
+  border-radius:6px 6px 0 0;
+  background:linear-gradient(180deg,var(--gold),rgba(201,168,76,.4));
+  transition:height .8s cubic-bezier(.16,1,.3,1);
+}
+.chart-bar.today .chart-bar-fill{background:linear-gradient(180deg,var(--green),rgba(76,175,125,.4))}
+.chart-label{font-size:10px;color:var(--muted);text-align:center}
+
+/* AI Tips */
+.tip-card{
+  background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(76,175,125,0.04));
+  border:1px solid rgba(201,168,76,0.2);
+  border-radius:16px;padding:18px;margin-bottom:12px;
+}
+.tip-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+.tip-text{font-size:13px;color:var(--soft);line-height:1.7}
+
+/* ── COACH PAGE ── */
+.coach-layout{
+  display:grid;grid-template-columns:1fr 320px;gap:20px;
+  height:calc(100vh - 120px);
+}
+.chat-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;display:flex;flex-direction:column;overflow:hidden;
+}
+.chat-header{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+}
+.coach-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.coach-name{font-size:15px;font-weight:600;color:var(--text)}
+.coach-status{font-size:12px;color:var(--green);display:flex;align-items:center;gap:5px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:10px;max-width:80%}
+.msg.user{flex-direction:row-reverse;align-self:flex-end}
+.msg-bubble{
+  padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.6;
+  background:var(--surface2);color:var(--soft);
+}
+.msg.user .msg-bubble{background:rgba(201,168,76,0.1);color:var(--text);border-radius:16px 16px 4px 16px}
+.msg.bot .msg-bubble{border-radius:16px 16px 16px 4px}
+.msg-time{font-size:11px;color:var(--muted);margin-top:4px;align-self:flex-end}
+.typing{display:flex;gap:4px;padding:12px 16px;background:var(--surface2);border-radius:16px;width:fit-content}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.chat-input-wrap{
+  padding:16px 20px;border-top:1px solid var(--border);
+  display:flex;gap:10px;align-items:flex-end;
+}
+.chat-input{
+  flex:1;background:var(--surface2);border:1px solid var(--border);
+  border-radius:14px;padding:12px 16px;color:var(--text);
+  font-size:14px;font-family:'Outfit',sans-serif;outline:none;resize:none;
+  max-height:100px;line-height:1.5;transition:border-color .2s;
+}
+.chat-input:focus{border-color:rgba(201,168,76,0.4)}
+.chat-input::placeholder{color:var(--muted)}
+.send-btn{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  background:var(--gold);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:#06080F;transition:all .2s;
+}
+.send-btn:hover{transform:scale(1.05)}
+.send-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+
+/* Coach sidebar */
+.coach-sidebar{display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.quick-prompts .qp{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:12px 14px;cursor:pointer;
+  font-size:13px;color:var(--soft);margin-bottom:8px;
+  transition:all .15s;line-height:1.5;
+}
+.quick-prompts .qp:hover{border-color:rgba(201,168,76,0.3);color:var(--text)}
+
+/* ── PROGRESS PAGE ── */
+.progress-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;
+}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:20px;
+}
+.stat-icon{font-size:24px;margin-bottom:10px}
+.stat-val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:32px;font-weight:600;color:var(--text);margin-bottom:4px;
+  line-height:1;
+}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-change{font-size:12px;color:var(--green);margin-top:4px}
+
+/* Score history chart */
+.history-chart{display:flex;align-items:flex-end;gap:10px;height:160px;padding:8px 0}
+.hc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.hc-bar{
+  width:100%;border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg,var(--gold),rgba(201,168,76,.3));
+  min-height:8px;transition:height .8s cubic-bezier(.16,1,.3,1);position:relative;
+}
+.hc-bar.current{background:linear-gradient(180deg,var(--green),rgba(76,175,125,.3))}
+.hc-val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);white-space:nowrap}
+.hc-label{font-size:10px;color:var(--muted)}
+
+/* ── SETTINGS PAGE ── */
+.settings-section{margin-bottom:32px}
+.settings-title{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.settings-title::before{content:'';width:16px;height:1px;background:var(--muted)}
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;border-bottom:1px solid var(--border2);gap:20px;
+}
+.setting-info .setting-label{font-size:14px;font-weight:500;color:var(--text)}
+.setting-info .setting-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.toggle{
+  width:44px;height:24px;border-radius:50px;background:var(--surface2);
+  border:1px solid var(--border);cursor:pointer;position:relative;
+  transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:var(--green);border-color:var(--green)}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:16px;height:16px;border-radius:50%;background:white;
+  transition:transform .2s;
+}
+.toggle.on::after{transform:translateX(20px)}
+.setting-btn{
+  padding:8px 18px;border-radius:50px;border:1px solid var(--border);
+  background:transparent;color:var(--soft);font-size:13px;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all .2s;
+}
+.setting-btn:hover{border-color:var(--gold);color:var(--gold)}
+.setting-btn.danger:hover{border-color:var(--red);color:var(--red)}
+
+/* ── MOBILE MENU ── */
+.mobile-menu-btn{
+  display:none;background:none;border:none;color:var(--text);
+  font-size:20px;cursor:pointer;padding:4px;
+}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .mobile-menu-btn{display:block}
+  .two-col,.three-col{grid-template-columns:1fr}
+  .pillars-grid{grid-template-columns:repeat(3,1fr)}
+  .progress-stats{grid-template-columns:repeat(2,1fr)}
+  .coach-layout{grid-template-columns:1fr;height:auto}
+  .coach-sidebar{display:none}
+  .content{padding:20px}
+  .topbar{padding:14px 20px}
+  .score-hero{grid-template-columns:auto 1fr;gap:16px}
+  .score-change{display:none}
+}
+
+/* ── MISC ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:50px;
+  font-size:11px;font-weight:600;letter-spacing:.5px;
+}
+.tag-gold{background:var(--gold-dim);color:var(--gold)}
+.tag-green{background:var(--green-dim);color:var(--green)}
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90;
+}
+.overlay.open{display:block}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .5s ease both}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><span class="logo-dot"></span>VITARA</div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item active" onclick="showPage('overview')" href="#">
+        <span class="nav-icon">◈</span> Overview
+      </a>
+      <a class="nav-item" onclick="showPage('plan')" href="#">
+        <span class="nav-icon">📋</span> Today's Plan
+        <span class="nav-badge" id="planBadge">New</span>
+      </a>
+      <a class="nav-item" onclick="showPage('habits')" href="#">
+        <span class="nav-icon">✅</span> Habits
+      </a>
+      <a class="nav-item" onclick="showPage('coach')" href="#">
+        <span class="nav-icon">💬</span> AI Coach
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Insights</div>
+      <a class="nav-item" onclick="showPage('progress')" href="#">
+        <span class="nav-icon">📈</span> Progress
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" onclick="showPage('settings')" href="#">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+      <a class="nav-item" href="vitara-global.html">
+        <span class="nav-icon">↗</span> Upgrade Plan
+      </a>
+    </div>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">🌿</div>
+    <div>
+      <div class="user-name" id="sidebarName">Loading...</div>
+      <div class="user-plan" id="sidebarPlan">Pro · Trial</div>
+    </div>
+    <div class="user-settings" onclick="showPage('settings')">⚙</div>
+  </div>
+</aside>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="mobile-menu-btn" onclick="openSidebar()">☰</button>
+      <div>
+        <div class="topbar-title" id="pageTitle">Overview</div>
+        <div class="topbar-date" id="topbarDate">—</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="streak-badge">🔥 <span id="streakCount">7</span> day streak</div>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="page active fade-up" id="page-overview">
+      <div class="greeting">
+        <div class="greeting-sub" id="greetingTime">Good morning</div>
+        <div class="greeting-title">Ready to thrive, <em id="greetingName">friend</em>?</div>
+      </div>
+
+      <!-- Score ring -->
+      <div class="score-hero">
+        <div class="score-ring">
+          <svg width="96" height="96" viewBox="0 0 96 96">
+            <circle class="ring-bg" cx="48" cy="48" r="40"/>
+            <circle class="ring-fill" cx="48" cy="48" r="40" id="scoreRing" style="--offset:75"/>
+          </svg>
+          <div class="score-center">
+            <div class="score-num" id="scoreNum">7.4</div>
+            <div class="score-max">/10</div>
+          </div>
+        </div>
+        <div class="score-info">
+          <h3>Wellness Score</h3>
+          <p id="scoreMsg">You're building solid momentum. Sleep and hydration are your biggest opportunities today.</p>
+          <div style="margin-top:10px"><span class="tag tag-green">↑ Trending up</span></div>
+        </div>
+        <div class="score-change">
+          <div class="change-val">+0.8</div>
+          <div class="change-lbl">vs last week</div>
+        </div>
+      </div>
+
+      <!-- Pillars -->
+      <div class="pillars-grid" id="pillarsGrid"></div>
+
+      <!-- Two col: Plan + Habits -->
+      <div class="two-col">
+        <!-- Today's plan -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Today's Plan</div>
+            <div class="card-action" onclick="showPage('plan')">View all →</div>
+          </div>
+          <div id="overviewPlan"></div>
+        </div>
+
+        <!-- Weekly chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">This Week</div>
+            <div class="card-action" onclick="showPage('progress')">History →</div>
+          </div>
+          <div class="chart-wrap" id="weekChart"></div>
+        </div>
+      </div>
+
+      <!-- AI tip -->
+      <div class="tip-card">
+        <div class="tip-tag">✦ Coach Insight</div>
+        <div class="tip-text" id="dailyTip">Based on your recent check-ins, your energy dips around 3pm. Try a 10-minute walk and a glass of water instead of reaching for caffeine — it'll sustain you longer through the afternoon.</div>
+      </div>
+    </div>
+
+    <!-- ══ TODAY'S PLAN ══ -->
+    <div class="page fade-up" id="page-plan">
+      <div class="greeting" style="margin-bottom:24px">
+        <div class="greeting-sub">AI Generated</div>
+        <div class="greeting-title">Your <em>daily plan</em></div>
+      </div>
+      <div class="two-col">
+        <div id="planList" style="display:flex;flex-direction:column;gap:12px"></div>
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><div class="card-title">Focus Area</div></div>
+            <div id="focusArea" style="text-align:center;padding:12px 0">
+              <div style="font-size:36px;margin-bottom:8px">🌙</div>
+              <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">Sleep Quality</div>
+              <div style="font-size:13px;color:var(--muted)">Your biggest opportunity today</div>
+            </div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-tag">✦ Today's Insight</div>
+            <div class="tip-text" id="planTip">Consistency beats perfection. Completing 3 of these 4 tasks is still a great day.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ HABITS ══ -->
+    <div class="page fade-up" id="page-habits">
+      <div class="greeting" style="margin-bottom:24px">
+        <div class="greeting-sub">Weekly Tracker</div>
+        <div class="greeting-title">Your <em>habits</em></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Active Habits</div>
+            <div class="card-action" id="habitsCount">3 habits</div>
+          </div>
+          <div id="habitsList"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Completion Rate</div></div>
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:600;color:var(--gold);line-height:1" id="completionRate">71%</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:8px">This week</div>
+            <div style="font-size:12px;color:var(--green);margin-top:4px">↑ 12% from last week</div>
+          </div>
+          <div class="chart-wrap" id="habitsChart" style="height:80px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ COACH ══ -->
+    <div class="page fade-up" id="page-coach">
+      <div class="coach-layout">
+        <div class="chat-container">
+          <div class="chat-header">
+            <div class="coach-avatar">✦</div>
+            <div>
+              <div class="coach-name">Vitara Coach</div>
+              <div class="coach-status"><span class="status-dot"></span> Online · Always available</div>
+            </div>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="msg bot">
+              <div class="coach-avatar" style="width:30px;height:30px;font-size:13px;flex-shrink:0">✦</div>
+              <div>
+                <div class="msg-bubble" id="coachGreetMsg">Hi! I'm your Vitara wellness coach. I know your goals and your plan — ask me anything about your health, habits, nutrition, or how to have your best day today. 🌿</div>
+                <div class="msg-time">Just now</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-wrap">
+            <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask your coach anything..."
+              onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendMessage()" id="sendBtn">→</button>
+          </div>
+        </div>
+        <div class="coach-sidebar">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Quick Questions</div></div>
+            <div class="quick-prompts">
+              <div class="qp" onclick="askQuick(this)">What should I eat before a workout?</div>
+              <div class="qp" onclick="askQuick(this)">How can I sleep better tonight?</div>
+              <div class="qp" onclick="askQuick(this)">I'm feeling low energy — what helps?</div>
+              <div class="qp" onclick="askQuick(this)">Give me a 5-minute stress relief technique</div>
+              <div class="qp" onclick="askQuick(this)">How much water should I drink today?</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Today's Context</div></div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7" id="coachContext">
+              Your coach knows your wellness score, today's plan, and your goals.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PROGRESS ══ -->
+    <div class="page fade-up" id="page-progress">
+      <div class="greeting" style="margin-bottom:24px">
+        <div class="greeting-sub">Your Journey</div>
+        <div class="greeting-title">Progress & <em>insights</em></div>
+      </div>
+      <div class="progress-stats">
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-val" id="statStreak">7</div>
+          <div class="stat-label">Day Streak</div>
+          <div class="stat-change">↑ Personal best</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-val">+1.4</div>
+          <div class="stat-label">Score This Month</div>
+          <div class="stat-change">↑ vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val">68%</div>
+          <div class="stat-label">Habit Completion</div>
+          <div class="stat-change">↑ 8% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💬</div>
+          <div class="stat-val" id="statChats">24</div>
+          <div class="stat-label">Coach Sessions</div>
+          <div class="stat-change">Active user</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Wellness Score — Last 8 Weeks</div>
+          <span class="tag tag-gold">Trending up ↑</span>
+        </div>
+        <div class="history-chart" id="historyChart"></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Strongest Pillar</div></div>
+          <div style="text-align:center;padding:16px 0">
+            <div style="font-size:40px;margin-bottom:8px">🧘</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--green)">9.1</div>
+            <div style="font-size:14px;color:var(--soft);margin-top:4px">Mindfulness</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Biggest Opportunity</div></div>
+          <div style="text-align:center;padding:16px 0">
+            <div style="font-size:40px;margin-bottom:8px">💧</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--gold)">5.2</div>
+            <div style="font-size:14px;color:var(--soft);margin-top:4px">Hydration</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="page fade-up" id="page-settings">
+      <div class="greeting" style="margin-bottom:32px">
+        <div class="greeting-sub">Account</div>
+        <div class="greeting-title">Your <em>settings</em></div>
+      </div>
+
+      <!-- Profile -->
+      <div class="settings-section">
+        <div class="settings-title">Profile</div>
+        <div class="card">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Name</div>
+              <div class="setting-desc" id="settingName">—</div>
+            </div>
+            <button class="setting-btn" onclick="editName()">Edit</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Email</div>
+              <div class="setting-desc" id="settingEmail">—</div>
+            </div>
+            <button class="setting-btn">Change</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Plan</div>
+              <div class="setting-desc" id="settingPlan">Vitara Pro · Trial</div>
+            </div>
+            <button class="setting-btn" onclick="manageSubscription()">Manage</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="settings-section">
+        <div class="settings-title">Notifications</div>
+        <div class="card">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Daily Check-in Reminder</div>
+              <div class="setting-desc">Remind me to check in each morning</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Weekly Progress Report</div>
+              <div class="setting-desc">Email summary every Monday</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Habit Reminders</div>
+              <div class="setting-desc">Nudges when I haven't checked habits</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="settings-section">
+        <div class="settings-title">Account</div>
+        <div class="card">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Export My Data</div>
+              <div class="setting-desc">Download all your wellness data as JSON</div>
+            </div>
+            <button class="setting-btn" onclick="exportData()">Export</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Cancel Subscription</div>
+              <div class="setting-desc">Manage billing via Stripe portal</div>
+            </div>
+            <button class="setting-btn" onclick="manageSubscription()">Billing Portal</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Delete Account</div>
+              <div class="setting-desc">Permanently delete all your data</div>
+            </div>
+            <button class="setting-btn danger" onclick="confirmDelete()">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+// ── DATA ──
+// 🔧 CONFIGURACIÓN: cambia esta URL por la de tu servidor en Railway
+// Ejemplo: "https://vitara-production.up.railway.app"
+const SERVER = window.location.hostname === "localhost"
+  ? "http://localhost:4242"
+  : "https://TU-SERVIDOR.up.railway.app";
+const DAYS_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const today = new Date().getDay();
+const todayIdx = today === 0 ? 6 : today - 1;
+
+const PILLARS = [
+  { id:'sleep',      icon:'🌙', label:'Sleep',       color:'#6B8CAE', score:7 },
+  { id:'nutrition',  icon:'🥗', label:'Nutrition',   color:'#7AAF6E', score:8 },
+  { id:'movement',   icon:'🏃', label:'Movement',    color:'#D4845A', score:6 },
+  { id:'mindfulness',icon:'🧘', label:'Mind',        color:'#9B7DB5', score:9 },
+  { id:'hydration',  icon:'💧', label:'Hydration',   color:'#5BA3C9', score:5 },
+  { id:'energy',     icon:'⚡', label:'Energy',      color:'#E8B84B', score:7 },
+];
+
+const PLAN_ITEMS = [
+  { time:'Morning',   icon:'🌅', action:'10-min yoga flow + 2 large glasses of water', dur:'10 min',  area:'Movement' },
+  { time:'Midday',    icon:'☀️', action:'Protein-rich lunch, avoid simple carbs',       dur:'—',       area:'Nutrition' },
+  { time:'Afternoon', icon:'🌤️', action:'5-min breathing exercise at your desk',        dur:'5 min',   area:'Mindfulness' },
+  { time:'Evening',   icon:'🌙', action:'Digital sunset at 9pm · Wind down routine',    dur:'30 min',  area:'Sleep' },
+];
+
+const HABITS = [
+  { icon:'💧', name:'Drink 8 glasses of water' },
+  { icon:'🚶', name:'Walk 7,000 steps' },
+  { icon:'📵', name:'No screens 1hr before bed' },
+];
+
+const WEEK_SCORES  = [6.2, 6.8, 7.0, 6.5, 7.1, 7.4, 7.4];
+const HISTORY_DATA = [5.8, 6.1, 6.4, 6.2, 6.7, 7.0, 6.9, 7.4];
+const HISTORY_WEEKS = ['W1','W2','W3','W4','W5','W6','W7','Now'];
+
+// ── LOAD USER ──
+function loadUser() {
+  const u = JSON.parse(localStorage.getItem('vitara_user') || '{}');
+  const name = u.name || 'Friend';
+  const plan = u.plan || 'pro';
+
+  document.getElementById('greetingName').textContent = name;
+  document.getElementById('sidebarName').textContent = name;
+  document.getElementById('sidebarPlan').textContent = plan === 'annual' ? 'Annual Plan' : plan === 'free' ? 'Free Plan' : 'Pro · Trial';
+  document.getElementById('settingName').textContent = name;
+  document.getElementById('settingEmail').textContent = u.email || '—';
+  document.getElementById('settingPlan').textContent = plan === 'annual' ? 'Vitara Annual' : plan === 'free' ? 'Vitara Free' : 'Vitara Pro · Trial';
+
+  const coachMsg = `Hi${name !== 'Friend' ? ' '+name : ''}! I'm your Vitara wellness coach. I know your goals and your plan — ask me anything about your health, habits, nutrition, or how to have your best day today. 🌿`;
+  document.getElementById('coachGreetMsg').textContent = coachMsg;
+
+  const context = `📋 Your goal: ${u.goal || 'General wellness'}\n🏃 Lifestyle: ${u.lifestyle || 'Moderate'}\n⏱️ Daily time: ${u.schedule || '15 min/day'}`;
+  document.getElementById('coachContext').textContent = context;
+}
+
+// ── GREETING ──
+function setGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greetingTime').textContent = g;
+  const d = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('topbarDate').textContent = d;
+}
+
+// ── PILLARS ──
+function renderPillars() {
+  const avg = (PILLARS.reduce((a,p)=>a+p.score,0)/PILLARS.length).toFixed(1);
+  document.getElementById('scoreNum').textContent = avg;
+  const offset = 251 - (avg/10)*251;
+  document.getElementById('scoreRing').style.setProperty('--offset', offset);
+
+  document.getElementById('pillarsGrid').innerHTML = PILLARS.map(p=>`
+    <div class="pillar-card">
+      <div class="pillar-icon">${p.icon}</div>
+      <div class="pillar-bar-track">
+        <div class="pillar-bar-fill" style="height:${p.score*10}%;background:${p.color}"></div>
+      </div>
+      <div class="pillar-score" style="color:${p.color}">${p.score}</div>
+      <div class="pillar-name">${p.label}</div>
+    </div>
+  `).join('');
+}
+
+// ── WEEKLY CHART ──
+function renderWeekChart() {
+  const max = Math.max(...WEEK_SCORES);
+  document.getElementById('weekChart').innerHTML = WEEK_SCORES.map((s,i)=>`
+    <div class="chart-bar-wrap">
+      <div class="chart-bar ${i===todayIdx?'today':''}" style="height:${(s/max)*90}px">
+        <div class="chart-bar-fill" style="height:100%"></div>
+      </div>
+      <div class="chart-label">${DAYS_SHORT[i]}</div>
+    </div>
+  `).join('');
+}
+
+// ── PLAN ──
+function renderPlan(container, limit) {
+  const items = limit ? PLAN_ITEMS.slice(0,limit) : PLAN_ITEMS;
+  const doneKey = 'plan_done_' + new Date().toDateString();
+  const done = JSON.parse(localStorage.getItem(doneKey)||'{}');
+
+  document.getElementById(container).innerHTML = items.map((item,i)=>`
+    <div class="plan-item" id="planItem${i}">
+      <div class="plan-dot">${item.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="plan-time">${item.time} · ${item.area}</div>
+        <div class="plan-action" style="${done[i]?'text-decoration:line-through;opacity:.5':''}">${item.action}</div>
+        <div class="plan-dur">${item.dur}</div>
+      </div>
+      <div class="plan-check ${done[i]?'done':''}" onclick="togglePlanItem(${i},'${doneKey}')">
+        ${done[i]?'✓':''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function togglePlanItem(i, doneKey) {
+  const done = JSON.parse(localStorage.getItem(doneKey)||'{}');
+  done[i] = !done[i];
+  localStorage.setItem(doneKey, JSON.stringify(done));
+  renderPlan('overviewPlan', 3);
+  renderPlan('planList', null);
+  const remaining = PLAN_ITEMS.length - Object.values(done).filter(Boolean).length;
+  if(remaining <= 0) document.getElementById('planBadge').style.display='none';
+}
+
+// ── HABITS ──
+function renderHabits() {
+  const key = 'habits_' + new Date().toDateString().split(' ').slice(1,3).join('_');
+  const done = JSON.parse(localStorage.getItem(key)||'{}');
+
+  document.getElementById('habitsList').innerHTML = HABITS.map((h,hi)=>`
+    <div class="habit-row">
+      <span style="font-size:16px">${h.icon}</span>
+      <div class="habit-name">${h.name}</div>
+      <div class="habit-days">
+        ${DAYS_SHORT.map((d,di)=>`
+          <div class="habit-day ${done[hi+'_'+di]?'done':''} ${di===todayIdx?'today':''}"
+            onclick="toggleHabit(${hi},${di},'${key}')">
+            ${done[hi+'_'+di]?'✓':d.charAt(0)}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Completion rate
+  const total = HABITS.length * 7;
+  const completed = Object.values(done).filter(Boolean).length;
+  document.getElementById('completionRate').textContent = Math.round((completed/total)*100)+'%';
+}
+
+function toggleHabit(hi, di, key) {
+  const done = JSON.parse(localStorage.getItem(key)||'{}');
+  const k = hi+'_'+di;
+  done[k] = !done[k];
+  localStorage.setItem(key, JSON.stringify(done));
+  renderHabits();
+}
+
+// ── HISTORY CHART ──
+function renderHistory() {
+  const max = Math.max(...HISTORY_DATA);
+  document.getElementById('historyChart').innerHTML = HISTORY_DATA.map((s,i)=>`
+    <div class="hc-col">
+      <div class="hc-bar ${i===HISTORY_DATA.length-1?'current':''}" style="height:${(s/max)*140}px">
+        <div class="hc-val">${s}</div>
+      </div>
+      <div class="hc-label">${HISTORY_WEEKS[i]}</div>
+    </div>
+  `).join('');
+}
+
+// ── NAVIGATION ──
+const pageTitles = {
+  overview:'Overview', plan:"Today's Plan", habits:'Habits',
+  coach:'AI Coach', progress:'Progress', settings:'Settings'
+};
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const page = document.getElementById('page-'+id);
+  if(page){ page.classList.add('active'); page.style.animation='none'; requestAnimationFrame(()=>{page.style.animation='fadeUp .4s ease both';}); }
+  document.querySelectorAll('.nav-item').forEach(n=>{ if(n.textContent.toLowerCase().includes(pageTitles[id]?.split(' ')[0]?.toLowerCase())) n.classList.add('active'); });
+  document.getElementById('pageTitle').textContent = pageTitles[id] || id;
+  closeSidebar();
+
+  if(id==='plan') renderPlan('planList', null);
+  if(id==='habits') renderHabits();
+  if(id==='progress') renderHistory();
+  return false;
+}
+
+// ── SIDEBAR MOBILE ──
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+// ── AI COACH CHAT ──
+const chatHistory = [];
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+
+  appendMsg(msg, 'user');
+  chatHistory.push({role:'user', content:msg});
+
+  // Typing indicator
+  const typingId = 'typing_'+Date.now();
+  document.getElementById('chatMessages').insertAdjacentHTML('beforeend',`
+    <div class="msg bot" id="${typingId}">
+      <div class="coach-avatar" style="width:30px;height:30px;font-size:13px;flex-shrink:0">✦</div>
+      <div class="typing"><span></span><span></span><span></span></div>
+    </div>
+  `);
+  scrollChat();
+
+  const u = JSON.parse(localStorage.getItem('vitara_user')||'{}');
+  const systemPrompt = `You are Vitara, a warm and knowledgeable personal wellness coach. 
+User profile: Name=${u.name||'User'}, Goal=${u.goal||'wellness'}, Lifestyle=${u.lifestyle||'moderate'}, Daily time=${u.schedule||'15min'}.
+Today's wellness scores: Sleep 7/10, Nutrition 8/10, Movement 6/10, Mindfulness 9/10, Hydration 5/10, Energy 7/10.
+Today's plan: Morning yoga, protein lunch, afternoon breathing, evening wind-down.
+Be concise (2-4 sentences), warm, practical, and specific to their profile. No generic advice.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: systemPrompt,
+        messages: chatHistory,
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b=>b.text||'').join('') || "I'm here to support your wellness journey! Could you rephrase that?";
+    document.getElementById(typingId)?.remove();
+    appendMsg(reply, 'bot');
+    chatHistory.push({role:'assistant', content:reply});
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    appendMsg("I couldn't connect right now. Check your internet and try again!", 'bot');
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function appendMsg(text, role) {
+  const time = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const isBot = role === 'bot';
+  document.getElementById('chatMessages').insertAdjacentHTML('beforeend',`
+    <div class="msg ${role}" style="animation:fadeUp .3s ease">
+      ${isBot?`<div class="coach-avatar" style="width:30px;height:30px;font-size:13px;flex-shrink:0">✦</div>`:''}
+      <div>
+        <div class="msg-bubble">${text}</div>
+        <div class="msg-time">${time}</div>
+      </div>
+    </div>
+  `);
+  scrollChat();
+}
+
+function scrollChat(){ const m=document.getElementById('chatMessages'); m.scrollTop=m.scrollHeight; }
+function handleChatKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function askQuick(el){ document.getElementById('chatInput').value=el.textContent; sendMessage(); }
+
+// ── SETTINGS ──
+function editName(){
+  const n=prompt('Enter your name:',JSON.parse(localStorage.getItem('vitara_user')||'{}').name||'');
+  if(n&&n.trim()){
+    const u=JSON.parse(localStorage.getItem('vitara_user')||'{}');
+    u.name=n.trim();
+    localStorage.setItem('vitara_user',JSON.stringify(u));
+    loadUser();
+  }
+}
+function manageSubscription(){
+  alert('This would open the Stripe billing portal where you can update your card, change plan, or cancel.\n\nIn production: call POST /create-portal-session with your customer_id.');
+}
+function exportData(){
+  const data = JSON.parse(localStorage.getItem('vitara_user')||'{}');
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'vitara-data.json';
+  a.click();
+}
+function confirmDelete(){
+  if(confirm('Are you sure? This will permanently delete your account and all data.')){
+    localStorage.clear();
+    window.location.href='vitara-global.html';
+  }
+}
+
+// ── INIT ──
+loadUser();
+setGreeting();
+renderPillars();
+renderWeekChart();
+renderPlan('overviewPlan', 3);
+renderPlan('planList', null);
+renderHabits();
+</script>
+</body>
+</html>

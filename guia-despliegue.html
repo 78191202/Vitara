@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vitara — Guía de Lanzamiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080F;--surface:#0D1117;--surface2:#131820;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.04);
+  --gold:#C9A84C;--green:#4CAF7D;--blue:#5BA3C9;--red:#C96B5A;--purple:#9B7DB5;
+  --text:#F0EDE6;--muted:#6B7280;--soft:#9CA3AF;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text)}
+
+/* LAYOUT */
+.wrapper{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  background:var(--surface);border-right:1px solid var(--border);
+  padding:28px 16px;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.logo{font-family:'Cormorant Garamond',serif;font-size:20px;letter-spacing:3px;
+  display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+  animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.4)}50%{box-shadow:0 0 0 5px rgba(201,168,76,0)}}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;padding-left:15px;margin-bottom:28px}
+
+.nav-group{margin-bottom:20px}
+.nav-group-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);font-weight:700;padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;
+  border-radius:9px;cursor:pointer;font-size:13px;color:var(--muted);
+  text-decoration:none;transition:all .15s;margin-bottom:2px}
+.nav-item:hover{background:var(--surface2);color:var(--soft)}
+.nav-item.active{background:rgba(201,168,76,.1);color:var(--gold)}
+.nav-item.done{color:var(--green)}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s}
+.nav-item.active .step-num{background:rgba(201,168,76,.2);color:var(--gold)}
+.nav-item.done .step-num{background:rgba(76,175,125,.2);color:var(--green)}
+.nav-item.done .step-num::after{content:'✓'}
+
+/* progress */
+.sidebar-progress{margin-top:28px;padding-top:20px;border-top:1px solid var(--border)}
+.prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.prog-track{height:4px;background:var(--surface2);border-radius:2px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));
+  border-radius:2px;width:0%;transition:width .6s ease}
+.time-est{font-size:11px;color:var(--muted);margin-top:8px;text-align:center}
+
+/* MAIN */
+.main{padding:52px 60px;max-width:860px}
+
+/* SECTION */
+.section{margin-bottom:72px;scroll-margin-top:32px}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.eyebrow::before{content:'';width:18px;height:1px;background:var(--gold)}
+h1{font-family:'Cormorant Garamond',serif;font-size:54px;font-weight:600;
+  line-height:1.05;letter-spacing:-1.5px;margin-bottom:20px}
+h1 em{font-style:italic;color:var(--gold)}
+h2{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;
+  line-height:1.1;letter-spacing:-0.5px;margin-bottom:14px}
+h2 em{font-style:italic;color:var(--gold)}
+h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:10px;margin-top:24px}
+p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:14px;font-weight:300}
+p strong{color:var(--text);font-weight:600}
+
+/* HERO INTRO */
+.hero-intro{
+  background:linear-gradient(135deg,var(--surface),#0A1018);
+  border:1px solid var(--border);border-radius:24px;padding:36px;
+  margin-bottom:40px;position:relative;overflow:hidden;
+}
+.hero-intro::after{content:'';position:absolute;right:-60px;top:-60px;
+  width:240px;height:240px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,76,.07),transparent 70%);pointer-events:none}
+.hero-lead{font-size:17px;color:var(--soft);line-height:1.8;font-weight:300;margin-bottom:20px}
+.badges{display:flex;flex-wrap:wrap;gap:10px}
+.badge{display:flex;align-items:center;gap:7px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:50px;padding:7px 14px;font-size:13px;color:var(--soft)}
+.badge strong{color:var(--text)}
+
+/* STEP BLOCKS */
+.step-block{display:flex;gap:20px;margin-bottom:28px;align-items:flex-start}
+.step-marker{width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:var(--muted);margin-top:2px;
+  font-family:'JetBrains Mono',monospace;transition:all .2s}
+.step-marker.gold{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.3);color:var(--gold)}
+.step-body{flex:1}
+.step-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;
+  display:flex;align-items:center;gap:10px}
+.step-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;font-weight:300}
+
+/* CODE */
+.code{background:var(--surface2);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;margin:12px 0}
+.code-head{display:flex;justify-content:space-between;align-items:center;
+  padding:9px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.code-lang{font-size:11px;letter-spacing:1px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.copy-btn{font-size:11px;color:var(--gold);background:none;border:none;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:opacity .2s}
+.copy-btn:hover{opacity:.7}
+.code-body{padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:var(--soft);line-height:1.9;overflow-x:auto;white-space:pre}
+.cmd{color:var(--green)}
+.key{color:var(--blue)}
+.val{color:var(--gold)}
+.cmt{color:var(--muted)}
+.hi{background:rgba(201,168,76,.12);color:var(--gold);padding:1px 5px;border-radius:4px}
+
+/* ALERTS */
+.alert{border-radius:12px;padding:14px 18px;margin:14px 0;
+  font-size:14px;line-height:1.7;display:flex;gap:12px;align-items:flex-start}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert.info{background:rgba(91,163,201,.08);border:1px solid rgba(91,163,201,.2);color:var(--soft)}
+.alert.tip{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);color:var(--soft)}
+.alert.success{background:rgba(76,175,125,.08);border:1px solid rgba(76,175,125,.2);color:var(--soft)}
+.alert.danger{background:rgba(201,107,90,.08);border:1px solid rgba(201,107,90,.2);color:var(--soft)}
+.alert strong{color:var(--text)}
+
+/* SCREENSHOT MOCKUP */
+.screen-mock{background:var(--surface2);border:1px solid var(--border);
+  border-radius:16px;padding:14px;margin:16px 0}
+.screen-bar{display:flex;gap:6px;align-items:center;margin-bottom:12px}
+.screen-dot{width:10px;height:10px;border-radius:50%}
+.screen-url{flex:1;background:var(--surface);border-radius:6px;
+  padding:6px 12px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.screen-content{background:var(--bg);border-radius:10px;padding:20px;min-height:80px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--muted);font-style:italic}
+
+/* CHECKLIST */
+.checklist{list-style:none;border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;margin:14px 0}
+.checklist li{display:flex;align-items:center;gap:12px;
+  padding:13px 18px;border-bottom:1px solid var(--border2);cursor:pointer;
+  font-size:14px;color:var(--soft);transition:background .15s}
+.checklist li:last-child{border-bottom:none}
+.checklist li:hover{background:rgba(255,255,255,.02)}
+.ch-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border);
+  background:var(--surface2);flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:11px;transition:all .15s;color:transparent}
+.checklist li.checked .ch-box{background:var(--green);border-color:var(--green);color:#06080F}
+.checklist li.checked span{text-decoration:line-through;opacity:.5}
+
+/* ENV TABLE */
+.env-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+.env-table th{text-align:left;padding:10px 14px;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
+.env-table td{padding:12px 14px;border-bottom:1px solid var(--border2);vertical-align:top;line-height:1.6}
+.env-table tr:last-child td{border-bottom:none}
+.env-key{font-family:'JetBrains Mono',monospace;color:var(--blue);font-size:12px}
+.env-desc{color:var(--muted)}
+.req{color:var(--red);font-size:10px;font-weight:700;letter-spacing:1px}
+
+/* PLATFORM CARDS */
+.platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.platform-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:22px;transition:all .2s}
+.platform-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-2px)}
+.platform-icon{font-size:30px;margin-bottom:10px}
+.platform-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px}
+.platform-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.platform-tag{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600}
+.tag-free{background:rgba(76,175,125,.12);color:var(--green)}
+.tag-paid{background:rgba(201,168,76,.1);color:var(--gold)}
+
+/* LAUNCH */
+.launch-card{background:linear-gradient(135deg,#0D1A12,#0A1020);
+  border:1px solid rgba(201,168,76,.25);border-radius:24px;padding:48px;
+  text-align:center;margin-top:20px;
+  background-image:radial-gradient(ellipse at 30% 50%,rgba(76,175,125,.1),transparent 50%),
+                   radial-gradient(ellipse at 70% 50%,rgba(201,168,76,.07),transparent 50%)}
+.launch-icon{font-size:64px;margin-bottom:16px}
+.btn{display:inline-block;padding:14px 32px;border-radius:50px;margin:6px;
+  font-size:14px;font-weight:700;letter-spacing:.5px;text-decoration:none;
+  cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .2s}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#A8752A);color:#06080F}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.3)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--soft)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+
+@media(max-width:800px){
+  .wrapper{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main{padding:32px 20px}
+  .platform-grid{grid-template-columns:1fr}
+  h1{font-size:36px}h2{font-size:28px}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo"><span class="logo-dot"></span>VITARA</div>
+  <div class="logo-sub">GUÍA DE LANZAMIENTO</div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Cuentas</div>
+    <a class="nav-item active" href="#intro"><span class="step-num">1</span>Introducción</a>
+    <a class="nav-item" href="#github"><span class="step-num">2</span>Crear cuenta GitHub</a>
+    <a class="nav-item" href="#stripe"><span class="step-num">3</span>Crear cuenta Stripe</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Subir código</div>
+    <a class="nav-item" href="#repositorio"><span class="step-num">4</span>Subir archivos</a>
+    <a class="nav-item" href="#railway"><span class="step-num">5</span>Backend en Railway</a>
+    <a class="nav-item" href="#vercel"><span class="step-num">6</span>Frontend en Vercel</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Pagos y pruebas</div>
+    <a class="nav-item" href="#stripe-config"><span class="step-num">7</span>Activar Stripe</a>
+    <a class="nav-item" href="#conectar"><span class="step-num">8</span>Conectar todo</a>
+    <a class="nav-item" href="#pruebas"><span class="step-num">9</span>Pruebas finales</a>
+    <a class="nav-item" href="#live"><span class="step-num">10</span>¡En vivo!</a>
+  </div>
+
+  <div class="sidebar-progress">
+    <div class="prog-top">
+      <span>Progreso</span>
+      <span id="pct">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="time-est" id="timeEst">⏱️ ~45 min restantes</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ══ 1. INTRO ══ -->
+<div class="section" id="intro">
+  <div class="eyebrow">Bienvenido</div>
+  <h1>Vamos a poner<br/><em>Vitara en línea.</em></h1>
+
+  <div class="hero-intro">
+    <p class="hero-lead">No necesitas saber programar para seguir esta guía. Solo sigue los pasos en orden, uno por uno. En menos de una hora tendrás tu producto funcionando en internet, aceptando pagos reales.</p>
+    <div class="badges">
+      <div class="badge">⏱️ Tiempo: <strong>~45 minutos</strong></div>
+      <div class="badge">💰 Costo: <strong>$0 para empezar</strong></div>
+      <div class="badge">🌍 Resultado: <strong>Vitara en línea</strong></div>
+    </div>
+  </div>
+
+  <div class="alert info">
+    <div class="alert-icon">💡</div>
+    <div><strong>Consejo:</strong> Abre esta guía en una pantalla y trabaja en la otra. Así puedes leer y hacer al mismo tiempo.</div>
+  </div>
+
+  <h3>Herramientas que vamos a usar</h3>
+  <div class="platform-grid">
+    <div class="platform-card">
+      <div class="platform-icon">🐙</div>
+      <div class="platform-name">GitHub</div>
+      <div class="platform-desc">Donde guardamos el código de Vitara. Como un Google Drive pero para archivos de programación.</div>
+      <span class="platform-tag tag-free">Gratis</span>
+    </div>
+    <div class="platform-card">
+      <div class="platform-icon">▲</div>
+      <div class="platform-name">Vercel</div>
+      <div class="platform-desc">Publica las páginas web de Vitara. Con un clic sube tus archivos HTML y te da un link público.</div>
+      <span class="platform-tag tag-free">Gratis</span>
+    </div>
+    <div class="platform-card">
+      <div class="platform-icon">🚂</div>
+      <div class="platform-name">Railway</div>
+      <div class="platform-desc">Ejecuta el servidor que procesa los pagos. Gratis hasta $5/mes de uso (más que suficiente al inicio).</div>
+      <span class="platform-tag tag-free">Gratis al inicio</span>
+    </div>
+    <div class="platform-card">
+      <div class="platform-icon">💳</div>
+      <div class="platform-name">Stripe</div>
+      <div class="platform-desc">Procesa los pagos de tus clientes. Cobra el 2.9% + $0.30 por transacción. Sin cuota mensual.</div>
+      <span class="platform-tag tag-paid">2.9% por venta</span>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 2. GITHUB ══ -->
+<div class="section" id="github">
+  <div class="eyebrow">Paso 2</div>
+  <h2>Crear tu cuenta<br/><em>GitHub</em></h2>
+
+  <div class="step-block">
+    <div class="step-marker gold">1</div>
+    <div class="step-body">
+      <div class="step-title">Abre GitHub.com</div>
+      <div class="step-desc">Ve a <strong>github.com</strong> en tu navegador y haz clic en <strong>"Sign up"</strong> (arriba a la derecha).</div>
+      <div class="screen-mock">
+        <div class="screen-bar">
+          <div class="screen-dot" style="background:#FF5F57"></div>
+          <div class="screen-dot" style="background:#FFBD2E"></div>
+          <div class="screen-dot" style="background:#28CA41"></div>
+          <div class="screen-url">github.com</div>
+        </div>
+        <div class="screen-content">🐙 Pantalla de inicio de GitHub → busca el botón verde "Sign up"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">2</div>
+    <div class="step-body">
+      <div class="step-title">Llena el formulario</div>
+      <div class="step-desc">Escribe tu email, crea una contraseña, y elige un nombre de usuario (por ejemplo: <strong>vitara-app</strong>). Verifica tu email cuando llegue el correo.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">3</div>
+    <div class="step-body">
+      <div class="step-title">Crea un repositorio nuevo</div>
+      <div class="step-desc">Una vez dentro, haz clic en el botón verde <strong>"New"</strong> o <strong>"Create repository"</strong>. Llénalo así:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">CONFIGURACIÓN DEL REPOSITORIO</span></div>
+        <div class="code-body"><span class="key">Nombre:</span>          <span class="val">vitara</span>
+<span class="key">Descripción:</span>     <span class="val">Mi app de wellness con IA</span>
+<span class="key">Visibilidad:</span>     <span class="val">Public</span>  <span class="cmt">(o Private si prefieres)</span>
+<span class="key">README:</span>          <span class="val">✓ Marcar esta casilla</span></div>
+      </div>
+      <div class="step-desc">Haz clic en <strong>"Create repository"</strong>.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">4</div>
+    <div class="step-body">
+      <div class="step-title">Sube los archivos de Vitara</div>
+      <div class="step-desc">En tu nuevo repositorio, haz clic en <strong>"uploading an existing file"</strong> (link azul en la página). Arrastra TODOS los archivos de Vitara que descargaste:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">ARCHIVOS A SUBIR</span></div>
+        <div class="code-body"><span class="val">vitara-global.html</span>       <span class="cmt">← Landing page principal</span>
+<span class="val">wellness-landing.html</span>    <span class="cmt">← Página de ventas</span>
+<span class="val">success.html</span>             <span class="cmt">← Página post-pago</span>
+<span class="val">onboarding.html</span>          <span class="cmt">← Onboarding</span>
+<span class="val">dashboard.html</span>           <span class="cmt">← Dashboard usuario</span>
+<span class="val">server.js</span>                <span class="cmt">← Backend (servidor)</span>
+<span class="val">.env.example</span>             <span class="cmt">← Plantilla de configuración</span></div>
+      </div>
+      <div class="step-desc">Abajo escribe como mensaje: <strong>"Subida inicial de Vitara"</strong> y haz clic en <strong>"Commit changes"</strong>.</div>
+      <div class="alert success">
+        <div class="alert-icon">✅</div>
+        <div><strong>¡Listo!</strong> Tu código ya está guardado en GitHub. Ahora necesita que funcione en internet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 3. STRIPE ══ -->
+<div class="section" id="stripe">
+  <div class="eyebrow">Paso 3</div>
+  <h2>Crear tu cuenta<br/><em>Stripe</em></h2>
+
+  <div class="alert tip">
+    <div class="alert-icon">💡</div>
+    <div><strong>Importante:</strong> Stripe necesita información de tu negocio para pagarte. Ten a mano tu documento de identidad y datos bancarios.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">1</div>
+    <div class="step-body">
+      <div class="step-title">Regístrate en Stripe</div>
+      <div class="step-desc">Ve a <strong>stripe.com</strong> → clic en <strong>"Start now"</strong>. Llena con tu email y contraseña.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">2</div>
+    <div class="step-body">
+      <div class="step-title">Activa tu cuenta</div>
+      <div class="step-desc">Stripe te pedirá información de tu negocio. Puedes empezar en <strong>modo de prueba</strong> sin llenar esto — perfecto para probar antes de cobrar en serio.</div>
+      <div class="alert info">
+        <div class="alert-icon">🔵</div>
+        <div>En modo de prueba puedes simular pagos con tarjetas de prueba. <strong>No se cobra dinero real</strong> hasta que actives el modo en vivo.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">3</div>
+    <div class="step-body">
+      <div class="step-title">Crea tus productos en Stripe</div>
+      <div class="step-desc">En el panel de Stripe: ve a <strong>Products → Add product</strong>. Crea estos dos:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">PRODUCTO 1 — PRO MENSUAL</span></div>
+        <div class="code-body"><span class="key">Nombre:</span>       <span class="val">Vitara Pro</span>
+<span class="key">Precio:</span>       <span class="val">$9.00</span>
+<span class="key">Tipo:</span>         <span class="val">Recurring (mensual)</span>
+<span class="key">Guardar</span> → copiar el <span class="hi">Price ID</span>: <span class="cmt">price_xxxxxxxxxxxx</span></div>
+      </div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">PRODUCTO 2 — ANUAL</span></div>
+        <div class="code-body"><span class="key">Nombre:</span>       <span class="val">Vitara Annual</span>
+<span class="key">Precio:</span>       <span class="val">$72.00</span>
+<span class="key">Tipo:</span>         <span class="val">Recurring (anual)</span>
+<span class="key">Guardar</span> → copiar el <span class="hi">Price ID</span>: <span class="cmt">price_xxxxxxxxxxxx</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">4</div>
+    <div class="step-body">
+      <div class="step-title">Copia tus API Keys</div>
+      <div class="step-desc">Ve a <strong>Developers → API keys</strong>. Copia y guarda estos dos en un bloc de notas:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">TUS CLAVES DE STRIPE (guardarlas con cuidado)</span></div>
+        <div class="code-body"><span class="key">Publishable key:</span>  <span class="val">pk_test_...</span>   <span class="cmt">← Esta es pública</span>
+<span class="key">Secret key:</span>       <span class="val">sk_test_...</span>   <span class="cmt">← Esta es PRIVADA, nunca la compartas</span></div>
+      </div>
+      <div class="alert danger">
+        <div class="alert-icon">🔴</div>
+        <div><strong>Nunca compartas tu Secret Key.</strong> Es como la contraseña de tu cuenta bancaria. Solo va en el servidor, nunca en el código del frontend.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 4. RAILWAY ══ -->
+<div class="section" id="railway">
+  <div class="eyebrow">Paso 5</div>
+  <h2>Backend en<br/><em>Railway</em></h2>
+  <p>Railway va a ejecutar tu <strong>server.js</strong> — el servidor que habla con Stripe para procesar pagos.</p>
+
+  <div class="step-block">
+    <div class="step-marker gold">1</div>
+    <div class="step-body">
+      <div class="step-title">Crea cuenta en Railway</div>
+      <div class="step-desc">Ve a <strong>railway.app</strong> → clic en <strong>"Login"</strong> → selecciona <strong>"Login with GitHub"</strong>. Así Railway se conecta automáticamente a tu código.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">2</div>
+    <div class="step-body">
+      <div class="step-title">Crea un nuevo proyecto</div>
+      <div class="step-desc">En el dashboard de Railway: <strong>"New Project" → "Deploy from GitHub repo"</strong>. Selecciona el repositorio <strong>vitara</strong> que creaste.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">3</div>
+    <div class="step-body">
+      <div class="step-title">Agrega un archivo package.json</div>
+      <div class="step-desc">Railway necesita saber cómo iniciar el servidor. Vuelve a GitHub, crea un archivo nuevo llamado <strong>package.json</strong> con este contenido exacto:</div>
+      <div class="code">
+        <div class="code-head">
+          <span class="code-lang">package.json</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        </div>
+        <div class="code-body">{
+  <span class="key">"name"</span>: <span class="val">"vitara-backend"</span>,
+  <span class="key">"version"</span>: <span class="val">"1.0.0"</span>,
+  <span class="key">"main"</span>: <span class="val">"server.js"</span>,
+  <span class="key">"scripts"</span>: {
+    <span class="key">"start"</span>: <span class="val">"node server.js"</span>
+  },
+  <span class="key">"dependencies"</span>: {
+    <span class="key">"express"</span>: <span class="val">"^4.18.2"</span>,
+    <span class="key">"stripe"</span>: <span class="val">"^14.0.0"</span>,
+    <span class="key">"cors"</span>: <span class="val">"^2.8.5"</span>,
+    <span class="key">"dotenv"</span>: <span class="val">"^16.0.0"</span>
+  }
+}</div>
+      </div>
+      <div class="step-desc">Guarda el archivo en GitHub con el mensaje <strong>"Agrega package.json"</strong>.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">4</div>
+    <div class="step-body">
+      <div class="step-title">Railway desplegará automáticamente</div>
+      <div class="step-desc">Railway detecta el cambio y construye tu servidor solo. En 2-3 minutos verás una pantalla verde con ✅. En la pestaña <strong>Settings → Domains</strong> haz clic en <strong>"Generate Domain"</strong> para obtener tu URL del servidor.</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">TU URL DEL SERVIDOR (ejemplo)</span></div>
+        <div class="code-body"><span class="val">https://vitara-production.up.railway.app</span>
+<span class="cmt">↑ Guarda esta URL, la necesitas en el siguiente paso</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 5. ENV ══ -->
+<div class="section" id="env">
+  <div class="eyebrow">Paso 5B</div>
+  <h2>Variables de<br/><em>entorno</em></h2>
+  <p>Las variables de entorno son como secretos privados que le das a tu servidor sin escribirlos en el código.</p>
+
+  <div class="step-block">
+    <div class="step-marker gold">1</div>
+    <div class="step-body">
+      <div class="step-title">En Railway, ve a Variables</div>
+      <div class="step-desc">En tu proyecto de Railway → clic en tu servicio → pestaña <strong>"Variables"</strong>. Agrega cada una de estas:</div>
+      <table class="env-table">
+        <tr>
+          <th>Variable</th>
+          <th>Valor</th>
+          <th></th>
+        </tr>
+        <tr>
+          <td><div class="env-key">STRIPE_SECRET_KEY</div></td>
+          <td><div class="env-desc">Tu <code>sk_test_...</code> de Stripe</div></td>
+          <td><span class="req">REQUERIDA</span></td>
+        </tr>
+        <tr>
+          <td><div class="env-key">STRIPE_PRICE_PRO</div></td>
+          <td><div class="env-desc">Tu <code>price_...</code> del plan Pro</div></td>
+          <td><span class="req">REQUERIDA</span></td>
+        </tr>
+        <tr>
+          <td><div class="env-key">STRIPE_PRICE_ANNUAL</div></td>
+          <td><div class="env-desc">Tu <code>price_...</code> del plan Anual</div></td>
+          <td><span class="req">REQUERIDA</span></td>
+        </tr>
+        <tr>
+          <td><div class="env-key">YOUR_DOMAIN</div></td>
+          <td><div class="env-desc">URL de Vercel, ej: <code>https://vitara.vercel.app</code></div></td>
+          <td><span class="req">REQUERIDA</span></td>
+        </tr>
+        <tr>
+          <td><div class="env-key">STRIPE_WEBHOOK_SECRET</div></td>
+          <td><div class="env-desc">Lo obtienes en el paso 7</div></td>
+          <td><span style="color:var(--muted);font-size:10px">DESPUÉS</span></td>
+        </tr>
+      </table>
+      <div class="alert success">
+        <div class="alert-icon">✅</div>
+        <div>Después de agregar las variables, Railway reinicia el servidor automáticamente.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 6. VERCEL ══ -->
+<div class="section" id="vercel">
+  <div class="eyebrow">Paso 6</div>
+  <h2>Frontend en<br/><em>Vercel</em></h2>
+  <p>Vercel publica tus páginas HTML para que cualquier persona en el mundo pueda verlas.</p>
+
+  <div class="step-block">
+    <div class="step-marker gold">1</div>
+    <div class="step-body">
+      <div class="step-title">Crea cuenta en Vercel</div>
+      <div class="step-desc">Ve a <strong>vercel.com</strong> → <strong>"Sign Up"</strong> → selecciona <strong>"Continue with GitHub"</strong>. Acepta los permisos.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">2</div>
+    <div class="step-body">
+      <div class="step-title">Importa tu repositorio</div>
+      <div class="step-desc">En Vercel: <strong>"Add New → Project"</strong> → busca y selecciona tu repositorio <strong>vitara</strong> de GitHub. Haz clic en <strong>"Import"</strong>.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">3</div>
+    <div class="step-body">
+      <div class="step-title">Configura el despliegue</div>
+      <div class="step-desc">Vercel detectará que es un sitio estático. Deja todo como está y haz clic en <strong>"Deploy"</strong>. En 60 segundos tendrás tu URL:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">TU URL DE VERCEL (ejemplo)</span></div>
+        <div class="code-body"><span class="val">https://vitara.vercel.app</span>
+<span class="cmt">↑ ¡Esta es tu página web pública! Compártela con el mundo.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">4</div>
+    <div class="step-body">
+      <div class="step-title">(Opcional) Agrega tu dominio propio</div>
+      <div class="step-desc">¿Quieres <strong>www.mivitara.com</strong> en vez de vitara.vercel.app? En Vercel → Settings → Domains → escribe tu dominio. Compra un dominio en <strong>namecheap.com</strong> por ~$10/año.</div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 7. STRIPE CONFIG ══ -->
+<div class="section" id="stripe-config">
+  <div class="eyebrow">Paso 7</div>
+  <h2>Activar pagos<br/><em>con Stripe</em></h2>
+
+  <div class="step-block">
+    <div class="step-marker gold">1</div>
+    <div class="step-body">
+      <div class="step-title">Configura el Webhook</div>
+      <div class="step-desc">En Stripe: <strong>Developers → Webhooks → Add endpoint</strong>. Escribe la URL de tu servidor de Railway más <code>/webhook</code>:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">URL DEL WEBHOOK</span></div>
+        <div class="code-body"><span class="val">https://vitara-production.up.railway.app/webhook</span></div>
+      </div>
+      <div class="step-desc">En <strong>"Select events"</strong>, elige estos eventos:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">EVENTOS A ACTIVAR</span></div>
+        <div class="code-body"><span class="val">checkout.session.completed</span>
+<span class="val">customer.subscription.deleted</span>
+<span class="val">customer.subscription.trial_will_end</span>
+<span class="val">invoice.payment_failed</span>
+<span class="val">invoice.payment_succeeded</span></div>
+      </div>
+      <div class="step-desc">Stripe te dará un <strong>Signing Secret</strong> (<code>whsec_...</code>). Cópialo y agrégalo a Railway como la variable <span class="hi">STRIPE_WEBHOOK_SECRET</span>.</div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 8. CONECTAR ══ -->
+<div class="section" id="conectar">
+  <div class="eyebrow">Paso 8</div>
+  <h2>Conectar el frontend<br/><em>con el backend</em></h2>
+  <p>Necesitas actualizar una línea en tus archivos HTML para que apunten a tu servidor de Railway.</p>
+
+  <div class="step-block">
+    <div class="step-marker gold">1</div>
+    <div class="step-body">
+      <div class="step-title">Actualiza la URL del servidor</div>
+      <div class="step-desc">En GitHub, edita <strong>vitara-global.html</strong>, <strong>success.html</strong> y <strong>dashboard.html</strong>. Busca la línea que dice:</div>
+      <div class="code">
+        <div class="code-head"><span class="code-lang">LÍNEA A CAMBIAR (en cada archivo HTML)</span></div>
+        <div class="code-body"><span class="cmt">// Cambiar esto:</span>
+<span class="key">const</span> SERVER = <span class="val">"http://localhost:4242"</span>;
+
+<span class="cmt">// Por esto (con tu URL real de Railway):</span>
+<span class="key">const</span> SERVER = <span class="val">"https://vitara-production.up.railway.app"</span>;</div>
+      </div>
+      <div class="step-desc">Guarda cada archivo con el mensaje <strong>"Conecta con servidor de producción"</strong>. Vercel se actualiza automáticamente.</div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ══ 9. PRUEBAS ══ -->
+<div class="section" id="pruebas">
+  <div class="eyebrow">Paso 9</div>
+  <h2>Pruebas<br/><em>finales</em></h2>
+  <p>Antes de cobrar dinero real, prueba que todo funciona con tarjetas de prueba de Stripe.</p>
+
+  <div class="code">
+    <div class="code-head"><span class="code-lang">TARJETAS DE PRUEBA STRIPE</span></div>
+    <div class="code-body"><span class="key">Pago exitoso:</span>     <span class="val">4242 4242 4242 4242</span>
+<span class="key">Pago rechazado:</span>   <span class="val">4000 0000 0000 9995</span>
+<span class="key">Requiere 3D:</span>      <span class="val">4000 0025 0000 3155</span>
+
+<span class="cmt">Fecha: cualquier fecha futura (ej: 12/29)</span>
+<span class="cmt">CVC: cualquier 3 dígitos (ej: 123)</span></div>
+  </div>
+
+  <h3>Lista de verificación final</h3>
+  <ul class="checklist" id="checklist">
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>La landing page abre en mi URL de Vercel</span></li>
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>El botón de "Start Free Trial" abre el checkout de Stripe</span></li>
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>Puedo completar un pago con la tarjeta 4242...</span></li>
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>La página success.html aparece después del pago</span></li>
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>El onboarding funciona y guarda mis respuestas</span></li>
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>El dashboard carga con mi nombre y plan</span></li>
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>El chat con el AI Coach responde</span></li>
+    <li onclick="toggleCheck(this)"><div class="ch-box"></div><span>En Stripe Dashboard veo el pago de prueba</span></li>
+  </ul>
+</div>
+
+<hr/>
+
+<!-- ══ 10. LIVE ══ -->
+<div class="section" id="live">
+  <div class="eyebrow">Paso 10</div>
+  <h2>¡Activa el modo<br/><em>en vivo!</em></h2>
+
+  <div class="step-block">
+    <div class="step-marker gold">🚀</div>
+    <div class="step-body">
+      <div class="step-title">Cambia Stripe a modo Live</div>
+      <div class="step-desc">En Stripe, activa el toggle de <strong>Test → Live</strong> (arriba izquierda). Te pedirá completar la información de tu negocio para recibir pagos reales.</div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-marker gold">🔑</div>
+    <div class="step-body">
+      <div class="step-title">Actualiza las claves en Railway</div>
+      <div class="step-desc">En modo Live, Stripe te da nuevas claves que empiezan con <code>sk_live_</code> y <code>pk_live_</code>. Actualiza las variables de entorno en Railway con estas claves reales.</div>
+      <div class="alert danger">
+        <div class="alert-icon">⚠️</div>
+        <div><strong>¡Cuidado!</strong> En modo Live se cobra dinero real. Asegúrate de que todo funciona en modo Test primero.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="launch-card">
+    <div class="launch-icon">🌍</div>
+    <h2 style="color:var(--text);font-size:36px;margin-bottom:12px">¡Vitara está en línea!</h2>
+    <p style="color:var(--muted);font-size:16px;margin-bottom:32px;max-width:420px;margin-left:auto;margin-right:auto">Tu producto de wellness está disponible para el mundo entero. ¡Comparte tu URL y empieza a conseguir clientes!</p>
+    <div>
+      <a class="btn btn-gold" href="vitara-global.html" target="_blank">Ver mi Landing Page</a>
+      <a class="btn btn-ghost" href="dashboard.html" target="_blank">Ver Dashboard</a>
+    </div>
+    <div style="margin-top:28px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.07);font-size:13px;color:var(--muted)">
+      💡 Próximo paso: comparte en redes sociales, grupos de salud y wellness, y considera correr anuncios en Instagram o TikTok.
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// Checklist
+function toggleCheck(li) {
+  li.classList.toggle('checked');
+  li.querySelector('.ch-box').textContent = li.classList.contains('checked') ? '✓' : '';
+  updateProgress();
+}
+
+// Progress
+function updateProgress() {
+  const total = document.querySelectorAll('.checklist li').length;
+  const done = document.querySelectorAll('.checklist li.checked').length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('progFill').style.width = pct + '%';
+  const mins = Math.max(0, Math.round(45 * (1 - done/total)));
+  document.getElementById('timeEst').textContent = mins > 0 ? `⏱️ ~${mins} min restantes` : '🎉 ¡Todo listo!';
+}
+
+// Copy code
+function copyCode(btn) {
+  const code = btn.closest('.code').querySelector('.code-body').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '¡Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+
+// Active nav on scroll
+const sections = document.querySelectorAll('.section');
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if(window.scrollY >= s.offsetTop - 100) current = s.id; });
+  navItems.forEach(n => {
+    n.classList.remove('active');
+    if(n.getAttribute('href') === '#' + current) n.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

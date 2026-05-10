@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vitara — Your AI Wellness Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<!-- SEO -->
+<meta name="description" content="Vitara — AI-powered daily wellness coaching. Personalized plans, habit tracking, and 24/7 AI coach. Available in 8 languages, 135+ countries."/>
+<meta name="keywords" content="wellness coach, AI health, daily wellness plan, habit tracker, mindfulness"/>
+<meta property="og:title" content="Vitara — Your AI Wellness Coach"/>
+<meta property="og:description" content="Personalized wellness plans powered by AI. Sleep better, move more, feel extraordinary."/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#06080F;font-family:'Outfit',sans-serif;
+  color:#F0EDE6;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.splash{text-align:center;animation:fadeIn .8s ease both}
+@keyframes fadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:42px;letter-spacing:6px;font-weight:600;
+  margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.logo-dot{
+  width:10px;height:10px;border-radius:50%;background:#C9A84C;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.5)}
+  50%{box-shadow:0 0 0 8px rgba(201,168,76,0)}
+}
+.tagline{font-size:14px;color:#6B7280;letter-spacing:3px;text-transform:uppercase;margin-bottom:48px}
+
+.loader{
+  width:40px;height:40px;border-radius:50%;margin:0 auto 24px;
+  border:2px solid rgba(255,255,255,.06);
+  border-top-color:#C9A84C;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:#4B5563;letter-spacing:1px}
+
+/* Background stars */
+.stars{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.star{
+  position:absolute;border-radius:50%;background:white;
+  animation:twinkle var(--d) var(--delay) infinite ease-in-out;
+}
+@keyframes twinkle{0%,100%{opacity:.05}50%{opacity:.4}}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="splash">
+  <div class="logo"><span class="logo-dot"></span>VITARA</div>
+  <div class="tagline">Your AI Wellness Coach</div>
+  <div class="loader"></div>
+  <div class="loading-text" id="loadingText">Loading...</div>
+</div>
+
+<script>
+// Generate stars
+const s = document.getElementById('stars');
+for(let i=0;i<80;i++){
+  const el = document.createElement('div');
+  el.className = 'star';
+  const size = Math.random()*2+.5;
+  el.style.cssText = `
+    width:${size}px;height:${size}px;
+    left:${Math.random()*100}%;top:${Math.random()*100}%;
+    --d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;
+  `;
+  s.appendChild(el);
+}
+
+// Smart routing — send user to the right page
+function route() {
+  const user = JSON.parse(localStorage.getItem('vitara_user') || '{}');
+  const params = new URLSearchParams(window.location.search);
+
+  // If coming back from Stripe payment
+  if (params.get('session_id')) {
+    updateText('Confirming payment...');
+    return redirect('success.html' + window.location.search);
+  }
+
+  // If user cancelled checkout
+  if (params.get('cancelled')) {
+    return redirect('vitara-global.html?cancelled=true');
+  }
+
+  // Fully onboarded user → dashboard
+  if (user.onboarded && user.email) {
+    updateText('Welcome back, ' + (user.name || 'friend') + '...');
+    return redirect('dashboard.html', 800);
+  }
+
+  // Paid but not onboarded → onboarding
+  if (user.email && !user.onboarded) {
+    updateText('Setting up your experience...');
+    return redirect('onboarding.html', 600);
+  }
+
+  // New visitor → landing page
+  updateText('Taking you to Vitara...');
+  redirect('vitara-global.html', 600);
+}
+
+function updateText(msg) {
+  document.getElementById('loadingText').textContent = msg;
+}
+
+function redirect(url, delay = 400) {
+  setTimeout(() => { window.location.href = url; }, delay);
+}
+
+// Run on load
+route();
+</script>
+</body>
+</html>

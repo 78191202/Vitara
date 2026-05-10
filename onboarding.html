@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vitara — Let's personalize your wellness</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080F;--gold:#C9A84C;--green:#4CAF7D;
+  --text:#F0EDE6;--muted:#6B7280;--soft:#9CA3AF;
+  --surface:#0D1117;--surface2:#131820;--border:rgba(255,255,255,0.07);
+}
+body{
+  background:var(--bg);font-family:'Outfit',sans-serif;
+  color:var(--text);min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:40px 24px 80px;
+}
+
+/* Background glow */
+body::before{
+  content:'';position:fixed;
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,76,0.06),transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+
+/* Logo */
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;letter-spacing:3px;color:var(--text);
+  margin-bottom:48px;display:flex;align-items:center;gap:8px;
+}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+
+/* Progress bar */
+.progress-wrap{width:100%;max-width:560px;margin-bottom:48px}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-label{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.progress-count{font-size:12px;color:var(--muted)}
+.progress-track{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--gold),var(--green));
+  border-radius:2px;transition:width .5s cubic-bezier(.16,1,.3,1);
+}
+
+/* Step card */
+.step-card{
+  width:100%;max-width:560px;
+  animation:stepIn .5s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes stepIn{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes stepOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-32px)}}
+
+.step-eyebrow{
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:12px;
+  display:flex;align-items:center;gap:10px;
+}
+.step-eyebrow::before{content:'';width:16px;height:1px;background:var(--gold)}
+
+h1.step-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(32px,5vw,48px);font-weight:600;
+  line-height:1.1;letter-spacing:-1px;margin-bottom:10px;
+}
+h1.step-title em{font-style:italic;color:var(--gold)}
+.step-sub{font-size:15px;color:var(--muted);line-height:1.6;font-weight:300;margin-bottom:36px}
+
+/* Option grids */
+.options-grid{display:grid;gap:12px;margin-bottom:36px}
+.options-grid.cols-2{grid-template-columns:1fr 1fr}
+.options-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+
+.option-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;padding:20px;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.option-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(201,168,76,0.05),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.option-card:hover{border-color:rgba(201,168,76,0.4);transform:translateY(-2px)}
+.option-card:hover::before{opacity:1}
+.option-card.selected{
+  border-color:var(--gold);background:rgba(201,168,76,0.08);
+}
+.option-card.selected::before{opacity:1}
+.opt-icon{font-size:28px;margin-bottom:10px}
+.opt-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.opt-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.opt-check{
+  position:absolute;top:12px;right:12px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--gold);display:none;
+  align-items:center;justify-content:center;
+  font-size:11px;color:#06080F;font-weight:700;
+}
+.option-card.selected .opt-check{display:flex}
+
+/* Pill options */
+.pills-wrap{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px}
+.pill{
+  padding:10px 20px;border-radius:50px;
+  border:1.5px solid var(--border);background:var(--surface);
+  font-size:14px;color:var(--soft);cursor:pointer;
+  transition:all .2s;font-family:'Outfit',sans-serif;
+}
+.pill:hover{border-color:rgba(201,168,76,0.4);color:var(--text)}
+.pill.selected{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold)}
+
+/* Slider step */
+.slider-group{margin-bottom:28px}
+.slider-label{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:10px;
+}
+.slider-name{font-size:14px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px}
+.slider-val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:600;color:var(--gold);min-width:24px;text-align:right;
+}
+input[type=range]{
+  width:100%;appearance:none;height:5px;border-radius:3px;outline:none;cursor:pointer;
+  background:var(--surface2);
+}
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 10px rgba(201,168,76,0.4);
+}
+
+/* Text input */
+.text-input{
+  width:100%;padding:16px 18px;border-radius:14px;
+  background:var(--surface);border:1.5px solid var(--border);
+  color:var(--text);font-size:15px;font-family:'Outfit',sans-serif;
+  outline:none;transition:border-color .2s;margin-bottom:12px;
+  resize:none;
+}
+.text-input:focus{border-color:var(--gold)}
+.text-input::placeholder{color:var(--muted)}
+
+/* Name step */
+.name-wrap{position:relative;margin-bottom:36px}
+.name-input{
+  width:100%;padding:20px 20px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:36px;font-weight:300;
+  background:transparent;border:none;border-bottom:1.5px solid var(--border);
+  color:var(--text);outline:none;
+  transition:border-color .3s;letter-spacing:-0.5px;
+}
+.name-input:focus{border-bottom-color:var(--gold)}
+.name-input::placeholder{color:rgba(240,237,230,0.15)}
+
+/* Nav buttons */
+.step-nav{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.btn-next{
+  padding:16px 40px;border-radius:50px;
+  background:linear-gradient(135deg,var(--gold),#A8752A);
+  color:#06080F;font-size:14px;font-weight:700;letter-spacing:.5px;
+  border:none;cursor:pointer;font-family:'Outfit',sans-serif;
+  transition:all .25s;display:flex;align-items:center;gap:8px;
+  min-width:160px;justify-content:center;
+}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,0.3)}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-back{
+  padding:16px 24px;border-radius:50px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:14px;
+  cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;
+}
+.btn-back:hover{color:var(--text);border-color:var(--soft)}
+
+/* Final step */
+.final-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px;padding:40px;margin-bottom:32px;
+  text-align:center;
+}
+.final-icon{font-size:64px;margin-bottom:20px}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0 0}
+.summary-item{
+  background:var(--surface2);border-radius:14px;padding:14px;
+  text-align:center;border:1px solid var(--border);
+}
+.summary-val{font-size:20px;margin-bottom:4px}
+.summary-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+
+@media(max-width:600px){
+  .options-grid.cols-3{grid-template-columns:1fr 1fr}
+  .options-grid.cols-2{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="logo"><span class="logo-dot"></span>VITARA</div>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span class="progress-label" id="stepLabel">Getting Started</span>
+    <span class="progress-count" id="stepCount">1 / 6</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:16%"></div>
+  </div>
+</div>
+
+<div id="stepContainer" class="step-card"></div>
+
+<script>
+// ── STATE ──
+const state = {
+  name: '',
+  goal: '',
+  areas: [],
+  lifestyle: '',
+  schedule: '',
+  experience: '',
+  ratings: { sleep:6, nutrition:6, movement:6, mindfulness:6, hydration:6, energy:6 },
+};
+
+// ── STEPS ──
+const STEPS = [
+  // Step 0 — Name
+  {
+    label: "Getting Started",
+    render: () => `
+      <div class="step-eyebrow">Welcome</div>
+      <h1 class="step-title">What should we<br/>call <em>you?</em></h1>
+      <p class="step-sub">Your coach will use this to personalize every interaction.</p>
+      <div class="name-wrap">
+        <input class="name-input" id="nameInput" type="text" placeholder="Your first name"
+          value="${state.name}" oninput="state.name=this.value; updateNext()" autocomplete="given-name"/>
+      </div>
+    `,
+    canNext: () => state.name.trim().length >= 2,
+  },
+
+  // Step 1 — Primary goal
+  {
+    label: "Your Goal",
+    render: () => `
+      <div class="step-eyebrow">Step 2</div>
+      <h1 class="step-title">What's your<br/><em>main goal?</em></h1>
+      <p class="step-sub">We'll build your plan around this. You can always update it later.</p>
+      <div class="options-grid cols-2">
+        ${[
+          { id:'energy',  icon:'⚡', title:'More Energy',     desc:'Feel vital and focused all day long' },
+          { id:'sleep',   icon:'🌙', title:'Better Sleep',    desc:'Fall asleep faster, wake up refreshed' },
+          { id:'weight',  icon:'⚖️', title:'Healthy Weight',  desc:'Sustainable, realistic progress' },
+          { id:'stress',  icon:'🧘', title:'Less Stress',     desc:'Calm mind, resilient body' },
+          { id:'fitness', icon:'💪', title:'Get Fitter',      desc:'Build strength and stamina' },
+          { id:'habits',  icon:'🌱', title:'Build Habits',    desc:'Small consistent wins every day' },
+        ].map(o=>`
+          <div class="option-card ${state.goal===o.id?'selected':''}" onclick="selectGoal('${o.id}')">
+            <div class="opt-check">✓</div>
+            <div class="opt-icon">${o.icon}</div>
+            <div class="opt-title">${o.title}</div>
+            <div class="opt-desc">${o.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    `,
+    canNext: () => state.goal !== '',
+  },
+
+  // Step 2 — Focus areas
+  {
+    label: "Focus Areas",
+    render: () => `
+      <div class="step-eyebrow">Step 3</div>
+      <h1 class="step-title">Which areas<br/><em>matter most?</em></h1>
+      <p class="step-sub">Pick up to 3. Your AI coach will prioritize these.</p>
+      <div class="pills-wrap">
+        ${[
+          '🌙 Sleep', '🥗 Nutrition', '🏃 Movement', '🧘 Mindfulness',
+          '💧 Hydration', '⚡ Energy', '🫁 Breathing', '💊 Supplements',
+          '📵 Screen Time', '🌞 Morning Routine', '🌃 Evening Routine', '🤝 Social Health'
+        ].map(a=>`
+          <div class="pill ${state.areas.includes(a)?'selected':''}" onclick="toggleArea('${a}')">${a}</div>
+        `).join('')}
+      </div>
+    `,
+    canNext: () => state.areas.length >= 1,
+  },
+
+  // Step 3 — Lifestyle
+  {
+    label: "Your Lifestyle",
+    render: () => `
+      <div class="step-eyebrow">Step 4</div>
+      <h1 class="step-title">How would you<br/>describe your <em>lifestyle?</em></h1>
+      <p class="step-sub">This helps your coach understand your starting point.</p>
+      <div class="options-grid cols-2">
+        ${[
+          { id:'sedentary', icon:'💻', title:'Mostly Sedentary',   desc:'Desk job, minimal exercise' },
+          { id:'light',     icon:'🚶', title:'Lightly Active',     desc:'Short walks, some movement' },
+          { id:'moderate',  icon:'🏋️', title:'Moderately Active',  desc:'Exercise 2–3x per week' },
+          { id:'active',    icon:'🏃', title:'Very Active',        desc:'Daily exercise, on the go' },
+        ].map(o=>`
+          <div class="option-card ${state.lifestyle===o.id?'selected':''}" onclick="selectLifestyle('${o.id}')">
+            <div class="opt-check">✓</div>
+            <div class="opt-icon">${o.icon}</div>
+            <div class="opt-title">${o.title}</div>
+            <div class="opt-desc">${o.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    `,
+    canNext: () => state.lifestyle !== '',
+  },
+
+  // Step 4 — Schedule
+  {
+    label: "Your Schedule",
+    render: () => `
+      <div class="step-eyebrow">Step 5</div>
+      <h1 class="step-title">How much time<br/>can you <em>commit?</em></h1>
+      <p class="step-sub">Honest answers get better plans. No judgment here.</p>
+      <div class="options-grid cols-2">
+        ${[
+          { id:'5min',   icon:'⚡', title:'5 min / day',    desc:'Absolute bare minimum — still works!' },
+          { id:'15min',  icon:'🌱', title:'15 min / day',   desc:'The sweet spot for most people' },
+          { id:'30min',  icon:'🌟', title:'30 min / day',   desc:'Solid commitment, real results' },
+          { id:'60min+', icon:'🏆', title:'60+ min / day',  desc:'All-in, maximum transformation' },
+        ].map(o=>`
+          <div class="option-card ${state.schedule===o.id?'selected':''}" onclick="selectSchedule('${o.id}')">
+            <div class="opt-check">✓</div>
+            <div class="opt-icon">${o.icon}</div>
+            <div class="opt-title">${o.title}</div>
+            <div class="opt-desc">${o.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    `,
+    canNext: () => state.schedule !== '',
+  },
+
+  // Step 5 — Final / summary
+  {
+    label: "All Set!",
+    render: () => {
+      const goalLabels = {energy:'More Energy',sleep:'Better Sleep',weight:'Healthy Weight',stress:'Less Stress',fitness:'Get Fitter',habits:'Build Habits'};
+      const timeLabels = {'5min':'5 min/day','15min':'15 min/day','30min':'30 min/day','60min+':'60+ min/day'};
+      return `
+      <div class="step-eyebrow">Ready to Begin</div>
+      <h1 class="step-title"><em>${state.name || 'Your'}</em> plan<br/>is being built.</h1>
+      <p class="step-sub">Here's what your AI coach now knows about you.</p>
+      <div class="final-card">
+        <div class="final-icon">✦</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--text)">
+          Personalized for ${state.name || 'You'}
+        </div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-val">🎯</div>
+            <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:2px">${goalLabels[state.goal]||'—'}</div>
+            <div class="summary-lbl">Main Goal</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-val">${state.areas.length}</div>
+            <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:2px">Focus Areas</div>
+            <div class="summary-lbl">Tracked</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-val">⏱️</div>
+            <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:2px">${timeLabels[state.schedule]||'—'}</div>
+            <div class="summary-lbl">Daily Time</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.7">
+        Your first personalized plan is ready to generate.<br/>
+        <span style="color:var(--gold)">Your journey starts now.</span>
+      </p>
+    `},
+    canNext: () => true,
+    nextLabel: 'Open My Dashboard →',
+  },
+];
+
+let currentStep = 0;
+
+// ── RENDER ──
+function render() {
+  const step = STEPS[currentStep];
+  const pct = Math.round(((currentStep + 1) / STEPS.length) * 100);
+
+  document.getElementById('stepLabel').textContent = step.label;
+  document.getElementById('stepCount').textContent = `${currentStep + 1} / ${STEPS.length}`;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  const container = document.getElementById('stepContainer');
+  container.style.animation = 'none';
+  container.innerHTML = `
+    ${step.render()}
+    <div class="step-nav">
+      ${currentStep > 0
+        ? `<button class="btn-back" onclick="goBack()">← Back</button>`
+        : `<div></div>`}
+      <button class="btn-next" id="nextBtn"
+        onclick="goNext()" ${step.canNext() ? '' : 'disabled'}>
+        ${step.nextLabel || 'Continue →'}
+      </button>
+    </div>
+  `;
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    container.style.animation = 'stepIn .5s cubic-bezier(.16,1,.3,1) both';
+  });
+
+  // Auto-focus name input
+  if (currentStep === 0) {
+    setTimeout(() => document.getElementById('nameInput')?.focus(), 100);
+  }
+}
+
+function updateNext() {
+  const btn = document.getElementById('nextBtn');
+  if (btn) btn.disabled = !STEPS[currentStep].canNext();
+}
+
+function goNext() {
+  if (!STEPS[currentStep].canNext()) return;
+  if (currentStep === STEPS.length - 1) {
+    // Save and go to dashboard
+    saveProfile();
+    window.location.href = 'dashboard.html';
+    return;
+  }
+  currentStep++;
+  render();
+}
+
+function goBack() {
+  if (currentStep > 0) { currentStep--; render(); }
+}
+
+// ── SELECTORS ──
+function selectGoal(id) { state.goal = id; render(); }
+function selectLifestyle(id) { state.lifestyle = id; render(); }
+function selectSchedule(id) { state.schedule = id; render(); }
+function toggleArea(a) {
+  const idx = state.areas.indexOf(a);
+  if (idx >= 0) state.areas.splice(idx, 1);
+  else if (state.areas.length < 3) state.areas.push(a);
+  render();
+}
+
+// ── SAVE ──
+function saveProfile() {
+  const existing = JSON.parse(localStorage.getItem('vitara_user') || '{}');
+  localStorage.setItem('vitara_user', JSON.stringify({
+    ...existing,
+    name: state.name,
+    goal: state.goal,
+    areas: state.areas,
+    lifestyle: state.lifestyle,
+    schedule: state.schedule,
+    onboarded: true,
+    onboarded_at: new Date().toISOString(),
+  }));
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && STEPS[currentStep].canNext()) goNext();
+});
+
+// ── INIT ──
+// Pre-fill name from payment if available
+const saved = JSON.parse(localStorage.getItem('vitara_user') || '{}');
+if (saved.name) state.name = saved.name;
+
+// If already onboarded, skip to dashboard
+if (saved.onboarded) window.location.href = 'dashboard.html';
+
+render();
+</script>
+</body>
+</html>
