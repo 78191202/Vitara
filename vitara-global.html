@@ -1205,11 +1205,11 @@ function submitCheckout() {
   const btn = document.getElementById('checkoutBtn');
   btn.textContent = 'Connecting to Stripe...';
   btn.disabled = true;
+  const email = document.getElementById('checkoutEmail').value;
+  const saved = JSON.parse(localStorage.getItem('vitara_user') || '{}');
+  localStorage.setItem('vitara_user', JSON.stringify({ ...saved, email }));
   setTimeout(() => {
-    document.getElementById('checkoutForm').style.display = 'none';
-    document.getElementById('successState').style.display = 'block';
-    btn.textContent = 'Begin My Wellness Journey →';
-    btn.disabled = false;
+    window.location.href = 'success.html';
   }, 2000);
 }
 
