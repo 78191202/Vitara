@@ -3,6 +3,7 @@
 
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -24,19 +25,35 @@ app.use(cors({
 app.use("/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 
+// ── SERVE STATIC HTML FILES ───────────────────────
+app.use(express.static(path.join(__dirname)));
+
+app.get("/success.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "success.html"));
+});
+
+app.get("/login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "login.html"));
+});
+
+app.get("/onboarding.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "onboarding.html"));
+});
+
+app.get("/dashboard.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "dashboard.html"));
+});
+
 // ── HEALTH CHECK ──────────────────────────────────
 app.get("/", (req, res) => {
   res.json({ status: "Vitara API running", version: "1.0.0" });
 });
 
 // ── CREATE CHECKOUT SESSION ───────────────────────
-// POST /create-checkout-session
-// Body: { plan: "pro" | "annual" | "free", email?: string }
 app.post("/create-checkout-session", async (req, res) => {
   const { plan, email } = req.body;
 
   if (plan === "free") {
-    // Free plan — no Stripe needed, just redirect to onboarding
     return res.json({
       url: `${process.env.YOUR_DOMAIN || "http://localhost:3000"}/onboarding.html?plan=free`,
     });
@@ -60,27 +77,17 @@ app.post("/create-checkout-session", async (req, res) => {
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email || undefined,
-
       success_url: `${domain}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${domain}/vitara-global.html?cancelled=true`,
-
-      // Allow promo/coupon codes
       allow_promotion_codes: true,
-
-      // Collect billing address for tax purposes
       billing_address_collection: "auto",
-
-      // Adaptive pricing — Stripe auto-converts currency by location
-      currency: undefined, // Let Stripe detect from customer location
-
-      // Custom metadata
+      currency: undefined,
       metadata: {
         plan,
         source: "vitara_web",
       },
     };
 
-    // 7-day free trial for Pro plan
     if (plan === "pro") {
       sessionConfig.subscription_data = {
         trial_period_days: 7,
@@ -88,7 +95,6 @@ app.post("/create-checkout-session", async (req, res) => {
       };
     }
 
-    // Annual — no trial, but discounted
     if (plan === "annual") {
       sessionConfig.subscription_data = {
         metadata: { plan: "annual" },
@@ -105,8 +111,6 @@ app.post("/create-checkout-session", async (req, res) => {
 });
 
 // ── GET SESSION STATUS ────────────────────────────
-// GET /session-status?session_id=cs_xxx
-// Called by success.html to confirm payment and get customer details
 app.get("/session-status", async (req, res) => {
   const { session_id } = req.query;
 
@@ -137,9 +141,6 @@ app.get("/session-status", async (req, res) => {
 });
 
 // ── CUSTOMER PORTAL ───────────────────────────────
-// POST /create-portal-session
-// Body: { customer_id: string }
-// Lets users manage their subscription (cancel, update card, etc.)
 app.post("/create-portal-session", async (req, res) => {
   const { customer_id } = req.body;
 
@@ -163,8 +164,6 @@ app.post("/create-portal-session", async (req, res) => {
 });
 
 // ── STRIPE WEBHOOK ────────────────────────────────
-// POST /webhook
-// Stripe sends events here — configure in Stripe Dashboard
 app.post("/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -187,39 +186,30 @@ app.post("/webhook", async (req, res) => {
       console.log(`Payment completed for: ${session.customer_details?.email}`);
       console.log(`Plan: ${session.metadata?.plan}`);
       console.log(`Subscription ID: ${session.subscription}`);
-
-      // TODO: Save to your database
-      // await db.users.create({ email: session.customer_details.email, plan: session.metadata.plan, ... })
-      // TODO: Send welcome email via SendGrid/Resend
-      // await sendWelcomeEmail(session.customer_details.email)
       break;
     }
 
     case "customer.subscription.trial_will_end": {
       const subscription = event.data.object;
       console.log(`Trial ending soon for subscription: ${subscription.id}`);
-      // TODO: Send "trial ending" reminder email
       break;
     }
 
     case "customer.subscription.deleted": {
       const subscription = event.data.object;
       console.log(`Subscription cancelled: ${subscription.id}`);
-      // TODO: Downgrade user to free plan in database
       break;
     }
 
     case "invoice.payment_failed": {
       const invoice = event.data.object;
       console.log(`Payment failed for customer: ${invoice.customer}`);
-      // TODO: Send payment failed email, retry logic
       break;
     }
 
     case "invoice.payment_succeeded": {
       const invoice = event.data.object;
       console.log(`Renewal payment succeeded: ${invoice.customer}`);
-      // TODO: Update subscription status in database
       break;
     }
 
