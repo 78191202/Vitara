@@ -20,6 +20,14 @@
       "dest": "/success.html"
     },
     {
+      "src": "/success.html",
+      "dest": "/success.html"
+    },
+    {
+      "src": "/login.html",
+      "dest": "/login.html"
+    },
+    {
       "src": "/onboarding",
       "dest": "/onboarding.html"
     },
