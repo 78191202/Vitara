@@ -90,4 +90,237 @@ h1 em{font-style:italic;color:var(--gold)}
   width:100%;padding:16px;border-radius:50px;
   background:linear-gradient(135deg,var(--gold),#A8752A);
   color:#06080F;font-size:15px;font-weight:700;letter-spacing:.5px;
-  border:none;cursor:pointe…
+  border:none;cursor:pointer;font-family:'Outfit',sans-serif;
+  transition:all .25s;margin-top:4px;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(201,168,76,0.3)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.divider{
+  display:flex;align-items:center;gap:12px;margin:20px 0;
+  font-size:12px;color:var(--muted);
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.btn-magic{
+  width:100%;padding:14px;border-radius:50px;
+  background:transparent;border:1.5px solid var(--border);
+  color:var(--soft);font-size:14px;font-weight:500;
+  cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-magic:hover{border-color:var(--gold);color:var(--gold)}
+
+.error-msg{
+  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);
+  border-radius:10px;padding:12px 14px;font-size:13px;color:#F87171;
+  margin-bottom:16px;display:none;
+}
+.success-msg{
+  background:rgba(76,175,125,0.1);border:1px solid rgba(76,175,125,0.3);
+  border-radius:10px;padding:12px 14px;font-size:13px;color:var(--green);
+  margin-bottom:16px;display:none;text-align:center;
+}
+
+.footer-link{
+  text-align:center;margin-top:24px;
+  font-size:13px;color:var(--muted);
+}
+.footer-link a{color:var(--gold);text-decoration:none;font-weight:600}
+.footer-link a:hover{text-decoration:underline}
+
+/* Magic link sent state */
+.magic-sent{display:none;text-align:center;padding:20px 0}
+.magic-icon{font-size:48px;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div class="card">
+  <div class="logo"><span class="logo-dot"></span>VITARA</div>
+
+  <div class="eyebrow">Welcome Back</div>
+  <h1>Log in to<br/><em>Vitara</em></h1>
+  <p class="subtitle">Your wellness journey continues here.</p>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tabPassword" onclick="switchTab('password')">Password</button>
+    <button class="tab" id="tabMagic" onclick="switchTab('magic')">Magic Link</button>
+  </div>
+
+  <!-- Error / Success -->
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="success-msg" id="successMsg"></div>
+
+  <!-- Password Form -->
+  <div id="passwordForm">
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="loginPassword" placeholder="Your password"/>
+    </div>
+    <div class="forgot" onclick="showForgot()">Forgot password?</div>
+    <button class="btn-primary" id="loginBtn" onclick="handleLogin()">Log In →</button>
+  </div>
+
+  <!-- Magic Link Form -->
+  <div id="magicForm" style="display:none">
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" type="email" id="magicEmail" placeholder="you@example.com"/>
+    </div>
+    <button class="btn-primary" id="magicBtn" onclick="handleMagicLink()">Send Magic Link →</button>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6">
+      We'll email you a link to log in instantly — no password needed.
+    </p>
+  </div>
+
+  <!-- Magic sent state -->
+  <div class="magic-sent" id="magicSent">
+    <div class="magic-icon">📬</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin-bottom:8px">Check your email</div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.7">We sent a magic link to your email. Click it to log in instantly.</p>
+    <button class="btn-primary" style="margin-top:24px" onclick="resetMagic()">Try Again</button>
+  </div>
+
+  <div class="footer-link">
+    Don't have an account? <a href="vitara-global.html">Start Free →</a>
+  </div>
+</div>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── STARS ──
+const s = document.getElementById('stars');
+for(let i=0;i<80;i++){
+  const el=document.createElement('div');el.className='star';
+  const size=Math.random()*2+.5;
+  el.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--min:${.05+Math.random()*.1};--max:${.3+Math.random()*.5}`;
+  s.appendChild(el);
+}
+
+// ── SUPABASE ──
+// IMPORTANTE: Reemplaza estos valores con los de tu proyecto en supabase.com
+const SUPABASE_URL = 'https://ymljitmcnixilatuzcsg.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_huLXTzouMBJoGWZW7TdlCg_wc02hOdv';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── TABS ──
+function switchTab(tab) {
+  document.getElementById('tabPassword').classList.toggle('active', tab==='password');
+  document.getElementById('tabMagic').classList.toggle('active', tab==='magic');
+  document.getElementById('passwordForm').style.display = tab==='password' ? 'block' : 'none';
+  document.getElementById('magicForm').style.display = tab==='magic' ? 'block' : 'none';
+  hideMessages();
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('successMsg').style.display = 'none';
+}
+function showSuccess(msg) {
+  const el = document.getElementById('successMsg');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('errorMsg').style.display = 'none';
+}
+function hideMessages() {
+  document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'none';
+}
+
+// ── LOGIN WITH PASSWORD ──
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+
+  if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+  btn.textContent = 'Logging in...'; btn.disabled = true;
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    showError('Incorrect email or password. Please try again.');
+    btn.textContent = 'Log In →'; btn.disabled = false;
+    return;
+  }
+
+  // Success — redirect to dashboard
+  const user = JSON.parse(localStorage.getItem('vitara_user') || '{}');
+  if (user.onboarded) {
+    window.location.href = 'dashboard.html';
+  } else {
+    window.location.href = 'onboarding.html';
+  }
+}
+
+// ── MAGIC LINK ──
+async function handleMagicLink() {
+  const email = document.getElementById('magicEmail').value.trim();
+  const btn = document.getElementById('magicBtn');
+
+  if (!email) { showError('Please enter your email address.'); return; }
+
+  btn.textContent = 'Sending...'; btn.disabled = true;
+
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + '/dashboard.html' }
+  });
+
+  if (error) {
+    showError('Could not send link. Please try again.');
+    btn.textContent = 'Send Magic Link →'; btn.disabled = false;
+    return;
+  }
+
+  document.getElementById('magicForm').style.display = 'none';
+  document.getElementById('magicSent').style.display = 'block';
+}
+
+function resetMagic() {
+  document.getElementById('magicSent').style.display = 'none';
+  document.getElementById('magicForm').style.display = 'block';
+  document.getElementById('magicBtn').textContent = 'Send Magic Link →';
+  document.getElementById('magicBtn').disabled = false;
+  document.getElementById('magicEmail').value = '';
+}
+
+// ── FORGOT PASSWORD ──
+async function showForgot() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showError('Enter your email first, then click Forgot password.'); return; }
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/reset-password.html'
+  });
+
+  if (error) { showError('Could not send reset email. Try again.'); return; }
+  showSuccess('Password reset email sent! Check your inbox.');
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const tab = document.getElementById('tabPassword').classList.contains('active');
+    if (tab) handleLogin(); else handleMagicLink();
+  }
+});
+
+// ── CHECK IF ALREADY LOGGED IN ──
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) window.location.href = 'dashboard.html';
+});
+</script>
+</body>
+</html>
