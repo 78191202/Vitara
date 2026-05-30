@@ -13,6 +13,7 @@ app.use(cors({
     "http://localhost:3000",
     "http://127.0.0.1:5500",
     "http://localhost:5500",
+    "https://vitara-psi.vercel.app",
     process.env.YOUR_DOMAIN,
   ].filter(Boolean),
   credentials: true,
@@ -51,10 +52,6 @@ app.get("/dashboard.html", (req, res) => {
 
 app.get("/vitara-global.html", (req, res) => {
   res.sendFile(__dirname + "/vitara-global.html");
-});
-
-app.get("/onboarding.html", (req, res) => {
-  res.sendFile(__dirname + "/onboarding.html");
 });
 
 // ── HEALTH CHECK ──────────────────────────────────
