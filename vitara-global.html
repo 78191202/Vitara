@@ -719,7 +719,9 @@ function setPricing(mode){
   else{document.getElementById('proPrice').innerHTML='<sup>$</sup>9';document.getElementById('proPeriod').textContent='per month · 7-day free trial';}
 }
 const plans={free:{name:'Vitara Free',desc:'No credit card required',price:'Free'},pro:{name:'Vitara Pro',desc:'7-day free trial, then $9/month',price:'$9/mo'},annual:{name:'Vitara Annual',desc:'Best value · Save 33%',price:'$72/yr'}};
+let currentPlan = 'pro';
 function openModal(plan){
+  currentPlan = plan;
   const p=plans[plan];
   document.getElementById('mPlanName').textContent=p.name;
   document.getElementById('mPlanDesc').textContent=p.desc;
@@ -736,13 +738,36 @@ document.getElementById('cardNum').addEventListener('input',function(){
   let v=this.value.replace(/\D/g,'').substring(0,16);
   this.value=v.replace(/(.{4})/g,'$1 ').trim();
 });
-function submitCheckout(){
+async function submitCheckout(){
   const btn=document.getElementById('checkoutBtn');
   btn.textContent='Connecting to Stripe...';btn.disabled=true;
   const email=document.getElementById('checkoutEmail').value;
-  const saved=JSON.parse(localStorage.getItem('vitara_user')||'{}');
-  localStorage.setItem('vitara_user',JSON.stringify({...saved,email}));
-  setTimeout(()=>{window.location.href='success.html';},2000);
+
+  if(currentPlan === 'free'){
+    const saved=JSON.parse(localStorage.getItem('vitara_user')||'{}');
+    localStorage.setItem('vitara_user',JSON.stringify({...saved,email,plan:'free'}));
+    window.location.href='onboarding.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://vitara-production.up.railway.app/create-checkout-session',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({plan:currentPlan, email})
+    });
+    const data = await res.json();
+    if(data.url){
+      window.location.href = data.url;
+    } else {
+      throw new Error('No URL returned');
+    }
+  } catch(e) {
+    console.error(e);
+    btn.textContent='Begin My Wellness Journey →';
+    btn.disabled=false;
+    alert('Payment error. Please try again.');
+  }
 }
 const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
